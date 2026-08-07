@@ -1,7 +1,9 @@
 import asyncio
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.database.session import engine, Base
 from app.api.auth import router as auth_router
 from app.api.sessions import router as sessions_router
 from app.api.labs import router as labs_router
@@ -10,13 +12,15 @@ from app.api.platform import router as platform_router
 from app.websocket.terminal import router as ws_router
 from app.docker.manager import docker_manager
 
+logger = logging.getLogger(__name__)
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="LinuxArena - Live Ubuntu Sandbox Practice & Assessment Platform",
+    description="LinuxArena - Production MySQL Backend with Google, GitHub & Manual Auth",
     version="1.0.0"
 )
 
-# CORS middleware for local dev & vite frontend
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register API routes
+# Include API routers
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(sessions_router, prefix=settings.API_V1_STR)
 app.include_router(labs_router, prefix=settings.API_V1_STR)
@@ -39,15 +43,22 @@ async def root():
     return {
         "app": settings.PROJECT_NAME,
         "status": "online",
-        "container_ttl_seconds": settings.SESSION_TTL_SECONDS,
-        "max_concurrent_containers": settings.MAX_CONCURRENT_CONTAINERS,
+        "database": "MySQL" if "mysql" in settings.DATABASE_URL else "SQLite (Fallback)",
+        "auth_methods": ["manual", "google", "github"],
         "active_containers": len(docker_manager.sessions)
     }
 
 
 @app.on_event("startup")
 async def startup_event():
-    # Background periodic task to prune expired container sessions
+    # Automatically create MySQL tables if they don't exist
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Successfully created/verified MySQL database schemas.")
+    except Exception as e:
+        logger.warning(f"Could not auto-create database tables on startup: {e}")
+
+    # Periodic background task to clean expired 30-min container sessions
     async def session_cleaner():
         while True:
             await asyncio.sleep(30)
