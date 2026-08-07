@@ -13,15 +13,25 @@ class UserSignup(BaseModel):
     password: str
 
 
+class OAuthAuthRequest(BaseModel):
+    provider: str  # "google" or "github"
+    email: str
+    name: str
+    avatar_url: Optional[str] = None
+    provider_id: Optional[str] = None
+
+
 class UserProfile(BaseModel):
     id: str
     name: str
     email: str
+    avatar_url: Optional[str] = None
+    auth_provider: str = "manual"
     xp: int = 1250
     streak: int = 5
     level: str = "Linux Novice"
-    badges: List[str] = ["First Container", "Terminal Master", "Bash Ninja"]
-    completed_labs: int = 8
+    badges: List[str] = ["First Login"]
+    completed_labs: int = 0
 
 
 class TokenResponse(BaseModel):
@@ -69,8 +79,8 @@ class LabStep(BaseModel):
 class Lab(BaseModel):
     id: str
     title: str
-    category: str  # Fundamentals, Admin, Networking, Docker, K8s, RHCSA, DevOps
-    difficulty: str  # Easy, Medium, Hard
+    category: str
+    difficulty: str
     xp_reward: int
     description: str
     steps: List[LabStep]

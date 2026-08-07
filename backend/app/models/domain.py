@@ -10,7 +10,10 @@ class User(Base):
     id = Column(String(50), primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)  # Nullable for OAuth users
+    auth_provider = Column(String(20), default="manual", nullable=False)  # manual, google, github
+    provider_id = Column(String(100), nullable=True)  # OAuth sub / user ID
+    avatar_url = Column(Text, nullable=True)
     xp = Column(Integer, default=100)
     streak = Column(Integer, default=1)
     level = Column(String(50), default="Linux Novice")

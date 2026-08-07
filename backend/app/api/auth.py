@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.domain import User
-from app.models.schemas import UserLogin, UserSignup, UserProfile, TokenResponse
+from app.models.schemas import UserLogin, UserSignup, UserProfile, TokenResponse, OAuthAuthRequest
 from app.security.jwt import hash_password, verify_password, create_access_token, decode_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -26,6 +26,7 @@ async def signup(user_data: UserSignup, db: Session = Depends(get_db)):
         name=user_data.name,
         email=user_data.email,
         hashed_password=hashed_pwd,
+        auth_provider="manual",
         xp=100,
         streak=1,
         level="Linux Novice",
@@ -42,6 +43,7 @@ async def signup(user_data: UserSignup, db: Session = Depends(get_db)):
         id=new_user.id,
         name=new_user.name,
         email=new_user.email,
+        auth_provider="manual",
         xp=new_user.xp,
         streak=new_user.streak,
         level=new_user.level,
@@ -55,27 +57,133 @@ async def signup(user_data: UserSignup, db: Session = Depends(get_db)):
 @router.post("/login", response_model=TokenResponse)
 async def login(credentials: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == credentials.email).first()
-    
-    if not user or not verify_password(credentials.password, user.hashed_password):
-        # Demo fallback for instant guest login convenience
-        profile = UserProfile(
-            id="usr_demo",
+
+    if not user:
+        # Auto-create user for frictionless development if not existing
+        uid = f"usr_{uuid.uuid4().hex[:8]}"
+        hashed_pwd = hash_password(credentials.password)
+        user = User(
+            id=uid,
             name=credentials.email.split("@")[0].capitalize() if "@" in credentials.email else "Student",
             email=credentials.email,
+            hashed_password=hashed_pwd,
+            auth_provider="manual",
             xp=1250,
             streak=5,
             level="Linux Explorer",
             badges=["Terminal Pioneer"],
-            completed_labs=6
+            completed_labs=4
         )
-        demo_token = create_access_token({"sub": "usr_demo", "email": credentials.email})
-        return TokenResponse(access_token=demo_token, user=profile)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    elif user.hashed_password and not verify_password(credentials.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": user.id, "email": user.email})
     profile = UserProfile(
         id=user.id,
         name=user.name,
         email=user.email,
+        avatar_url=user.avatar_url,
+        auth_provider=user.auth_provider,
+        xp=user.xp,
+        streak=user.streak,
+        level=user.level,
+        badges=user.badges or [],
+        completed_labs=user.completed_labs
+    )
+
+    return TokenResponse(access_token=token, user=profile)
+
+
+@router.post("/google", response_model=TokenResponse)
+async def google_auth(req: OAuthAuthRequest, db: Session = Depends(get_db)):
+    """Google OAuth authentication (creates/updates MySQL user record)."""
+    user = db.query(User).filter(User.email == req.email).first()
+    
+    if not user:
+        uid = f"usr_g_{uuid.uuid4().hex[:8]}"
+        user = User(
+            id=uid,
+            name=req.name or "Google Learner",
+            email=req.email,
+            auth_provider="google",
+            provider_id=req.provider_id,
+            avatar_url=req.avatar_url or "https://lh3.googleusercontent.com/a/default-user",
+            xp=200,
+            streak=1,
+            level="Google Certified Explorer",
+            badges=["Google Auth Verified"],
+            completed_labs=1
+        )
+        db.add(user)
+    else:
+        user.auth_provider = "google"
+        if req.avatar_url:
+            user.avatar_url = req.avatar_url
+        if req.provider_id:
+            user.provider_id = req.provider_id
+
+    db.commit()
+    db.refresh(user)
+
+    token = create_access_token({"sub": user.id, "email": user.email})
+    profile = UserProfile(
+        id=user.id,
+        name=user.name,
+        email=user.email,
+        avatar_url=user.avatar_url,
+        auth_provider="google",
+        xp=user.xp,
+        streak=user.streak,
+        level=user.level,
+        badges=user.badges or [],
+        completed_labs=user.completed_labs
+    )
+
+    return TokenResponse(access_token=token, user=profile)
+
+
+@router.post("/github", response_model=TokenResponse)
+async def github_auth(req: OAuthAuthRequest, db: Session = Depends(get_db)):
+    """GitHub OAuth authentication (creates/updates MySQL user record)."""
+    user = db.query(User).filter(User.email == req.email).first()
+
+    if not user:
+        uid = f"usr_gh_{uuid.uuid4().hex[:8]}"
+        user = User(
+            id=uid,
+            name=req.name or "GitHub Developer",
+            email=req.email,
+            auth_provider="github",
+            provider_id=req.provider_id,
+            avatar_url=req.avatar_url or "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            xp=250,
+            streak=2,
+            level="DevOps Hacker",
+            badges=["GitHub Auth Verified", "Open Source Pioneer"],
+            completed_labs=2
+        )
+        db.add(user)
+    else:
+        user.auth_provider = "github"
+        if req.avatar_url:
+            user.avatar_url = req.avatar_url
+        if req.provider_id:
+            user.provider_id = req.provider_id
+
+    db.commit()
+    db.refresh(user)
+
+    token = create_access_token({"sub": user.id, "email": user.email})
+    profile = UserProfile(
+        id=user.id,
+        name=user.name,
+        email=user.email,
+        avatar_url=user.avatar_url,
+        auth_provider="github",
         xp=user.xp,
         streak=user.streak,
         level=user.level,
@@ -100,6 +208,8 @@ async def get_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_
         id=user.id,
         name=user.name,
         email=user.email,
+        avatar_url=user.avatar_url,
+        auth_provider=user.auth_provider,
         xp=user.xp,
         streak=user.streak,
         level=user.level,
