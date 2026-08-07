@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # MySQL Database Container
+  db:
+    image: mysql:8.0
+    container_name: linuxarena_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: linuxarena_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Python FastAPI Backend Container
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: linuxarena_backend
+    restart: always
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:root@db:3306/linuxarena_db
+      - MYSQL_SERVER=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DB=linuxarena_db
+    ports:
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - db
+
+  # React Frontend Container
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: linuxarena_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
