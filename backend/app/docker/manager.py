@@ -58,10 +58,10 @@ class DockerSessionManager:
         # Clean expired sessions first
         await self.clean_expired_sessions()
 
-        # REUSE EXISTING CONTAINER: Ensure only 1 container runs per user!
-        for existing in self.sessions.values():
-            if existing.user_id == user_id and not existing.is_expired:
-                logger.info(f"Reusing active container session {existing.session_id} for user {user_id}")
+        # ABSOLUTE 1-CONTAINER GUARANTEE: If ANY active session exists, reuse it!
+        for existing in list(self.sessions.values()):
+            if not existing.is_expired:
+                logger.info(f"Reusing existing single active container session {existing.session_id}")
                 return existing
 
         # Check active container limit across all users
@@ -71,13 +71,22 @@ class DockerSessionManager:
 
         if self.docker_client:
             try:
+                # Cleanup leftover containers tagged linuxarena if any exist
+                try:
+                    leftovers = self.docker_client.containers.list(filters={"label": "app=linuxarena"})
+                    for old_c in leftovers:
+                        old_c.stop(timeout=1)
+                        old_c.remove(force=True)
+                except Exception:
+                    pass
+
                 try:
                     self.docker_client.images.get(settings.CONTAINER_IMAGE)
                 except Exception:
                     logger.info(f"Pulling image {settings.CONTAINER_IMAGE}...")
                     self.docker_client.images.pull(settings.CONTAINER_IMAGE)
 
-                # Create container with resource constraints
+                # Create single container with resource constraints
                 container = self.docker_client.containers.run(
                     image=settings.CONTAINER_IMAGE,
                     command="/bin/bash",
@@ -99,7 +108,7 @@ class DockerSessionManager:
 
                 session = ContainerSession(session_id, user_id, container_obj=container, is_mock=False)
                 self.sessions[session_id] = session
-                logger.info(f"Created single container session {session_id} for user {user_id}")
+                logger.info(f"Created SINGLE container session {session_id} for user {user_id}")
                 return session
 
             except Exception as e:
@@ -115,7 +124,14 @@ class DockerSessionManager:
 
     def get_session(self, session_id: str) -> Optional[ContainerSession]:
         session = self.sessions.get(session_id)
-        if session and session.is_expired:
+        if not session:
+            # If any active session exists, return it
+            active = [s for s in self.sessions.values() if not s.is_expired]
+            if active:
+                return active[0]
+            return None
+
+        if session.is_expired:
             asyncio.create_task(self.terminate_session(session_id))
             return None
         return session

@@ -77,22 +77,19 @@ async def websocket_terminal_endpoint(websocket: WebSocket, session_id: str):
 
     session = docker_manager.get_session(session_id)
     if not session:
-        # Create session on the fly if needed
-        session = await docker_manager.create_session(session_id, user_id="guest")
+        session = await docker_manager.create_session(session_id, user_id="usr_student")
 
     banner = (
         "\x1b[1;36m=========================================================\x1b[0m\r\n"
         "\x1b[1;32m  🚀 Welcome to LinuxArena Interactive Ubuntu Sandbox  \x1b[0m\r\n"
-        f"\x1b[1;33m  Session TTL: 30 minutes | ID: {session_id[:8]}...\x1b[0m\r\n"
+        f"\x1b[1;33m  Session TTL: 30 minutes | ID: {session.session_id[:8]}...\x1b[0m\r\n"
         "\x1b[1;36m=========================================================\x1b[0m\r\n\r\n"
     )
     await websocket.send_text(banner)
 
     if not session.is_mock and session.container_obj:
-        # Connect to Docker PTY Socket
         try:
             container = session.container_obj
-            # Start exec PTY bash
             exec_instance = container.client.api.exec_create(
                 container.id,
                 cmd="/bin/bash",
@@ -121,7 +118,6 @@ async def websocket_terminal_endpoint(websocket: WebSocket, session_id: str):
 
             while True:
                 data = await websocket.receive_text()
-                # Parse JSON messages (resize/input) or raw text
                 try:
                     msg = json.loads(data)
                     if msg.get("type") == "input":
@@ -139,7 +135,6 @@ async def websocket_terminal_endpoint(websocket: WebSocket, session_id: str):
             session.is_mock = True
 
     if session.is_mock:
-        # Fallback simulator loop
         sim = SimulatedBashShell(session_id)
         await websocket.send_text(sim.get_prompt())
 
@@ -164,11 +159,11 @@ async def websocket_terminal_endpoint(websocket: WebSocket, session_id: str):
                         await websocket.send_text(output)
                         current_input = ""
                         await websocket.send_text(sim.get_prompt())
-                    elif char == "\x7f" or char == "\x08":  # Backspace
+                    elif char == "\x7f" or char == "\x08":
                         if len(current_input) > 0:
                             current_input = current_input[:-1]
                             await websocket.send_text("\b \b")
-                    elif char == "\x03":  # Ctrl+C
+                    elif char == "\x03":
                         current_input = ""
                         await websocket.send_text("^C")
                         await websocket.send_text(sim.get_prompt())
