@@ -14,24 +14,44 @@ class UserSignup(BaseModel):
 
 
 class OAuthAuthRequest(BaseModel):
-    provider: str  # "google" or "github"
+    provider: str
     email: str
     name: str
     avatar_url: Optional[str] = None
     provider_id: Optional[str] = None
 
 
+class ProfileUpdateSchema(BaseModel):
+    name: Optional[str] = None
+    username: Optional[str] = None
+    phone: Optional[str] = None
+    avatar_url: Optional[str] = None
+    enrolled_course: Optional[str] = None
+    batch: Optional[str] = None
+
+
+class PasswordChangeSchema(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class UserProfile(BaseModel):
     id: str
+    student_id: str = "LA-10452"
     name: str
+    username: Optional[str] = "deepak_dev"
     email: str
+    phone: Optional[str] = "+91 9876543210"
     avatar_url: Optional[str] = None
     auth_provider: str = "manual"
-    xp: int = 1250
-    streak: int = 5
-    level: str = "Linux Novice"
-    badges: List[str] = ["First Login"]
-    completed_labs: int = 0
+    enrolled_course: str = "RHCSA Certification Track"
+    batch: str = "RHCSA Batch 2026"
+    xp: int = 1450
+    streak: int = 7
+    level: str = "RHCSA Aspirant"
+    badges: List[str] = ["Container Master", "Terminal Explorer", "Scripting Pro"]
+    completed_labs: int = 8
+    created_at: Optional[str] = None
 
 
 class TokenResponse(BaseModel):

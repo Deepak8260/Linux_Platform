@@ -1,16 +1,22 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface UserProfile {
   id: string;
+  student_id: string;
   name: string;
+  username?: string;
   email: string;
+  phone?: string;
   avatar_url?: string;
   auth_provider: string;
+  enrolled_course: string;
+  batch: string;
   xp: number;
   streak: number;
   level: string;
   badges: string[];
   completed_labs: number;
+  created_at?: string;
 }
 
 interface AuthContextType {
@@ -19,6 +25,8 @@ interface AuthContextType {
   loginManual: (email: string, pass: string) => Promise<void>;
   signupManual: (name: string, email: string, pass: string) => Promise<void>;
   loginOAuth: (provider: 'google' | 'github', name: string, email: string, avatarUrl?: string) => Promise<void>;
+  updateProfile: (data: { name?: string; username?: string; phone?: string; avatar_url?: string; enrolled_course?: string; batch?: string }) => Promise<void>;
+  updatePassword: (current_password: string, new_password: string) => Promise<void>;
   logout: () => void;
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
@@ -31,6 +39,8 @@ const AuthContext = createContext<AuthContextType>({
   loginManual: async () => {},
   signupManual: async () => {},
   loginOAuth: async () => {},
+  updateProfile: async () => {},
+  updatePassword: async () => {},
   logout: () => {},
   isAuthModalOpen: false,
   openAuthModal: () => {},
@@ -55,6 +65,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('linuxarena_token', tokenStr);
     localStorage.setItem('linuxarena_user', JSON.stringify(profile));
   };
+
+  // Sync user profile on mount if token exists
+  useEffect(() => {
+    if (token) {
+      fetch('http://localhost:8000/api/v1/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) {
+            setUser(data);
+            localStorage.setItem('linuxarena_user', JSON.stringify(data));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [token]);
 
   const loginManual = async (email: string, pass: string) => {
     const res = await fetch('http://localhost:8000/api/v1/auth/login', {
@@ -108,6 +135,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthModalOpen(false);
   };
 
+  const updateProfile = async (profileData: { name?: string; username?: string; phone?: string; avatar_url?: string; enrolled_course?: string; batch?: string }) => {
+    if (!token) return;
+    const res = await fetch('http://localhost:8000/api/v1/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(profileData)
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Failed to update profile');
+    }
+    const updatedUser = await res.json();
+    setUser(updatedUser);
+    localStorage.setItem('linuxarena_user', JSON.stringify(updatedUser));
+  };
+
+  const updatePassword = async (current_password: string, new_password: string) => {
+    if (!token) return;
+    const res = await fetch('http://localhost:8000/api/v1/auth/password', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ current_password, new_password })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Failed to update password');
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -122,6 +184,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loginManual,
       signupManual,
       loginOAuth,
+      updateProfile,
+      updatePassword,
       logout,
       isAuthModalOpen,
       openAuthModal: () => setIsAuthModalOpen(true),

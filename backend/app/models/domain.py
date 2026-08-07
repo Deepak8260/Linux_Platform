@@ -8,17 +8,22 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(String(50), primary_key=True, index=True)
+    student_id = Column(String(50), unique=True, index=True, nullable=True)  # LA-10452
     name = Column(String(100), nullable=False)
+    username = Column(String(100), unique=True, index=True, nullable=True)
     email = Column(String(100), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=True)  # Nullable for OAuth users
-    auth_provider = Column(String(20), default="manual", nullable=False)  # manual, google, github
-    provider_id = Column(String(100), nullable=True)  # OAuth sub / user ID
+    phone = Column(String(30), nullable=True)
+    hashed_password = Column(String(255), nullable=True)
+    auth_provider = Column(String(20), default="manual", nullable=False)
+    provider_id = Column(String(100), nullable=True)
     avatar_url = Column(Text, nullable=True)
-    xp = Column(Integer, default=100)
-    streak = Column(Integer, default=1)
-    level = Column(String(50), default="Linux Novice")
+    enrolled_course = Column(String(100), default="RHCSA Certification Track")
+    batch = Column(String(100), default="RHCSA Batch 2026")
+    xp = Column(Integer, default=1450)
+    streak = Column(Integer, default=7)
+    level = Column(String(50), default="RHCSA Aspirant")
     badges = Column(JSON, default=list)
-    completed_labs = Column(Integer, default=0)
+    completed_labs = Column(Integer, default=8)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 

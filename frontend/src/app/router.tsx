@@ -7,6 +7,10 @@ import { LabWorkspacePage } from '../pages/LabWorkspacePage';
 import { ChallengesPage } from '../pages/ChallengesPage';
 import { LeaderboardPage } from '../pages/LeaderboardPage';
 import { RecruiterPage } from '../pages/RecruiterPage';
+import { ProfilePage } from '../pages/ProfilePage';
+import { SettingsPage } from '../pages/SettingsPage';
+import { CertificatesPage } from '../pages/CertificatesPage';
+import { BadgesPage } from '../pages/BadgesPage';
 
 export const router = createBrowserRouter([
   {
@@ -40,5 +44,21 @@ export const router = createBrowserRouter([
   {
     path: '/recruiter',
     element: <RecruiterPage />,
+  },
+  {
+    path: '/profile',
+    element: <ProfilePage />,
+  },
+  {
+    path: '/settings',
+    element: <SettingsPage />,
+  },
+  {
+    path: '/certificates',
+    element: <CertificatesPage />,
+  },
+  {
+    path: '/badges',
+    element: <BadgesPage />,
   },
 ]);
