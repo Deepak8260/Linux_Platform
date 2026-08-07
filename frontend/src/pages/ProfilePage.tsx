@@ -198,38 +198,42 @@ export const ProfilePage: React.FC = () => {
 
                 {/* Profile Photo Options */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block font-semibold text-slate-400">Profile Photo</label>
+                  <label className="block font-semibold text-slate-400 mb-2">Profile Photo</label>
+                  <div className={`p-4 rounded-2xl border flex items-center justify-between gap-4 ${
+                    isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <div className="flex items-center gap-3">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-emerald-500" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                          {(user?.name || 'K').charAt(0)}
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-xs font-bold">Current Photo</div>
+                        <div className="text-[10px] text-slate-400">Custom cropped avatar</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setShowCropperModal(true)}
-                        className="text-emerald-500 hover:underline text-[11px] font-bold flex items-center gap-1"
+                        className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition"
                       >
-                        <Upload className="w-3.5 h-3.5" /> Upload & Crop Device Image
+                        <Upload className="w-3.5 h-3.5" /> Upload & Crop
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowAvatarPicker(true)}
-                        className="text-slate-400 hover:underline text-[11px] font-bold flex items-center gap-1"
+                        className={`px-3 py-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition ${
+                          isDark ? 'border-slate-700 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'
+                        }`}
                       >
-                        <Image className="w-3.5 h-3.5" /> Pick Preset Avatar
+                        <Image className="w-3.5 h-3.5 text-slate-400" /> Preset
                       </button>
                     </div>
-                  </div>
-                  <div className="relative">
-                    <Image className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                    <input
-                      type="text"
-                      value={avatarUrl}
-                      onChange={(e) => setAvatarUrl(e.target.value)}
-                      placeholder="https://... or base64"
-                      className={`w-full pl-10 pr-4 py-3 rounded-2xl border outline-none text-xs transition ${
-                        isDark
-                          ? 'bg-slate-800/80 border-slate-700 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
-                          : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-green-600 focus:ring-2 focus:ring-green-600/20'
-                      }`}
-                    />
                   </div>
                 </div>
 
