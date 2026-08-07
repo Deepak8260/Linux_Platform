@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, HTTPException, Status
+from fastapi import APIRouter, HTTPException, status
 from app.models.schemas import UserLogin, UserSignup, UserProfile, TokenResponse
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
