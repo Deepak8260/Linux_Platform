@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Navbar } from '../components/Navbar';
+import { SpinConfirmationModal } from '../components/modals/SpinConfirmationModal';
 import { Terminal, BookOpen, Flame, Award, Cpu, ArrowRight, Sparkles } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
@@ -10,6 +11,18 @@ export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+
+  const [showSpinModal, setShowSpinModal] = useState(false);
+  const [isLaunching, setIsLaunching] = useState(false);
+
+  const handleConfirmSpin = () => {
+    setIsLaunching(true);
+    setTimeout(() => {
+      setIsLaunching(false);
+      setShowSpinModal(false);
+      navigate('/playground');
+    }, 800);
+  };
 
   const recentActivity = [
     { type: 'lab', title: 'Completed: Linux Coreutils & Navigation', time: '2 hours ago', icon: '✅' },
@@ -48,7 +61,7 @@ export const DashboardPage: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 z-10 w-full md:w-auto">
             <button
-              onClick={() => navigate('/playground')}
+              onClick={() => setShowSpinModal(true)}
               className="bg-green-600 hover:bg-green-700 text-white font-extrabold px-6 py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-green-600/20"
             >
               <Terminal className="w-4 h-4" /> Spin Up Live Ubuntu Sandbox
@@ -152,7 +165,7 @@ export const DashboardPage: React.FC = () => {
             <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between">
               <span className="text-xs text-slate-400 font-mono">Remaining: <strong className="text-green-600 font-bold">28m 45s</strong></span>
               <button
-                onClick={() => navigate('/playground')}
+                onClick={() => setShowSpinModal(true)}
                 className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition"
               >
                 <Terminal className="w-3.5 h-3.5 text-green-400" /> Open Terminal →
@@ -226,6 +239,14 @@ export const DashboardPage: React.FC = () => {
         </div>
 
       </main>
+
+      {/* Spin Up Confirmation Modal */}
+      <SpinConfirmationModal
+        isOpen={showSpinModal}
+        onClose={() => setShowSpinModal(false)}
+        onConfirm={handleConfirmSpin}
+        isLaunching={isLaunching}
+      />
     </div>
   );
 };

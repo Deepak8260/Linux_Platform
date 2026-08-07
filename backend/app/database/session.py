@@ -29,11 +29,42 @@ def ensure_mysql_database_exists():
         return False
 
 
+def ensure_columns_exist():
+    """Automatically adds missing columns to MySQL users table if schema changed."""
+    try:
+        connection = pymysql.connect(
+            host=settings.MYSQL_SERVER,
+            port=settings.MYSQL_PORT,
+            user=settings.MYSQL_USER,
+            password=settings.MYSQL_PASSWORD,
+            database=settings.MYSQL_DB
+        )
+        with connection.cursor() as cursor:
+            columns = [
+                ("student_id", "VARCHAR(50)"),
+                ("username", "VARCHAR(100)"),
+                ("phone", "VARCHAR(30)"),
+                ("enrolled_course", "VARCHAR(100)"),
+                ("batch", "VARCHAR(100)"),
+                ("avatar_url", "LONGTEXT"),
+            ]
+            for col_name, col_type in columns:
+                try:
+                    cursor.execute(f"ALTER TABLE users ADD COLUMN `{col_name}` {col_type};")
+                except Exception:
+                    pass
+        connection.commit()
+        connection.close()
+    except Exception as e:
+        logger.warning(f"Auto-migration check notice: {e}")
+
+
 def get_engine():
     db_url = settings.DATABASE_URL
     if "mysql" in db_url:
         db_created = ensure_mysql_database_exists()
         if db_created:
+            ensure_columns_exist()
             try:
                 engine = create_engine(
                     db_url,

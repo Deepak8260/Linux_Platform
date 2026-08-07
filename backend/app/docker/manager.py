@@ -6,7 +6,6 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Try importing docker SDK
 try:
     import docker
     from docker.errors import DockerException
@@ -49,7 +48,6 @@ class DockerSessionManager:
 
         try:
             self.docker_client = docker.from_env()
-            # Test connection
             self.docker_client.ping()
             logger.info("Successfully connected to Docker engine.")
         except Exception as e:
@@ -57,18 +55,22 @@ class DockerSessionManager:
             self.docker_client = None
 
     async def create_session(self, session_id: str, user_id: str) -> ContainerSession:
-        # Check active container limit
+        # Clean expired sessions first
+        await self.clean_expired_sessions()
+
+        # REUSE EXISTING CONTAINER: Ensure only 1 container runs per user!
+        for existing in self.sessions.values():
+            if existing.user_id == user_id and not existing.is_expired:
+                logger.info(f"Reusing active container session {existing.session_id} for user {user_id}")
+                return existing
+
+        # Check active container limit across all users
         active_count = len([s for s in self.sessions.values() if not s.is_expired])
         if active_count >= settings.MAX_CONCURRENT_CONTAINERS:
-            # Clean expired sessions first
-            await self.clean_expired_sessions()
-            active_count = len([s for s in self.sessions.values() if not s.is_expired])
-            if active_count >= settings.MAX_CONCURRENT_CONTAINERS:
-                raise RuntimeError(f"Server capacity reached ({settings.MAX_CONCURRENT_CONTAINERS} max concurrent containers). Please wait a moment.")
+            raise RuntimeError(f"Server capacity reached ({settings.MAX_CONCURRENT_CONTAINERS} max concurrent containers). Please wait a moment.")
 
         if self.docker_client:
             try:
-                # Ensure image exists or pull
                 try:
                     self.docker_client.images.get(settings.CONTAINER_IMAGE)
                 except Exception:
@@ -85,19 +87,19 @@ class DockerSessionManager:
                     mem_limit=settings.CONTAINER_MEM_LIMIT,
                     nano_cpus=int(settings.CONTAINER_NCPU * 1e9),
                     labels={"app": "linuxarena", "session_id": session_id, "user_id": user_id},
-                    hostname=f"ubuntu-sandbox",
+                    hostname="ubuntu-sandbox",
                     working_dir="/home/student",
                     user="root",
                     remove=False
                 )
-                
+
                 # Setup student user directory inside container
                 container.exec_run("useradd -m -s /bin/bash student || true")
                 container.exec_run("chown -R student:student /home/student || true")
 
                 session = ContainerSession(session_id, user_id, container_obj=container, is_mock=False)
                 self.sessions[session_id] = session
-                logger.info(f"Created container session {session_id} for user {user_id}")
+                logger.info(f"Created single container session {session_id} for user {user_id}")
                 return session
 
             except Exception as e:
@@ -137,13 +139,11 @@ class DockerSessionManager:
             await self.terminate_session(sid)
 
     def exec_validation_command(self, session_id: str, cmd: str) -> dict:
-        """Executes a command inside the container to verify lab steps."""
         session = self.get_session(session_id)
         if not session:
             return {"exit_code": -1, "output": "Session expired or not found"}
 
         if session.is_mock or not session.container_obj:
-            # Simulated check logic
             return {"exit_code": 0, "output": "Simulated check passed"}
 
         try:

@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { XTerminal } from '../components/terminal/XTerminal';
 import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 import { Terminal, RefreshCw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export const PlaygroundPage: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const isDark = theme === 'dark';
 
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -15,13 +17,16 @@ export const PlaygroundPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isMock, setIsMock] = useState(false);
 
+  const didInitRef = useRef(false);
+
   const initSession = async () => {
     setLoading(true);
     try {
+      const userId = user?.id || 'usr_student';
       const res = await fetch('http://localhost:8000/api/v1/sessions/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: 'usr_student' })
+        body: JSON.stringify({ user_id: userId })
       });
       const data = await res.json();
       setSessionId(data.session_id);
@@ -37,7 +42,10 @@ export const PlaygroundPage: React.FC = () => {
   };
 
   useEffect(() => {
-    initSession();
+    if (!didInitRef.current) {
+      didInitRef.current = true;
+      initSession();
+    }
   }, []);
 
   useEffect(() => {
