@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Trophy, Flame } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { useTheme } from '../context/ThemeContext';
 
 interface LeaderboardUser {
   rank: number;
@@ -12,6 +13,8 @@ interface LeaderboardUser {
 }
 
 export const LeaderboardPage: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
 
   useEffect(() => {
@@ -29,42 +32,48 @@ export const LeaderboardPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className={`min-h-screen flex flex-col font-sans transition-colors ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    }`}>
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 py-8 w-full flex-1 space-y-8">
         
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-bold">
-            <Trophy className="w-4 h-4" /> Global Rankings
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200 text-xs font-bold">
+            <Trophy className="w-4 h-4 text-yellow-600" /> Global Rankings
           </div>
-          <h1 className="text-3xl font-extrabold text-white">LinuxArena Global Leaderboard</h1>
-          <p className="text-xs text-slate-400">Earn XP by completing practical labs, maintaining daily streaks, and solving RHCSA challenges.</p>
+          <h1 className="text-3xl font-extrabold">LinuxArena Global Leaderboard</h1>
+          <p className="text-xs text-slate-500">Earn XP by completing practical labs, maintaining daily streaks, and solving RHCSA challenges.</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-          <div className="divide-y divide-slate-800">
+        <div className={`border rounded-2xl overflow-hidden shadow-sm ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+          <div className="divide-y divide-slate-200/80">
             {users.map(u => (
               <div
                 key={u.rank}
                 className={`p-4 sm:p-5 flex items-center justify-between transition ${
-                  u.name.includes('(You)') ? 'bg-emerald-950/40 border-l-4 border-emerald-400' : 'hover:bg-slate-850'
+                  u.name.includes('(You)')
+                    ? isDark ? 'bg-emerald-950/40 border-l-4 border-emerald-400' : 'bg-green-50/80 border-l-4 border-green-600'
+                    : 'hover:bg-slate-50/50'
                 }`}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-8 text-center font-extrabold text-lg text-slate-400">
                     {u.rank === 1 ? '🥇' : u.rank === 2 ? '🥈' : u.rank === 3 ? '🥉' : `#${u.rank}`}
                   </div>
-                  <img src={u.avatar} alt={u.name} className="w-10 h-10 rounded-full border border-slate-700 object-cover" />
+                  <img src={u.avatar} alt={u.name} className="w-10 h-10 rounded-full border border-slate-200 object-cover" />
                   <div>
-                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <div className="text-sm font-bold flex items-center gap-2">
                       {u.name}
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700">
+                      <span className={`px-2 py-0.5 rounded text-[10px] border ${
+                        isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}>
                         {u.badge}
                       </span>
                     </div>
-                    <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
-                      <span className="flex items-center gap-1 text-amber-400 font-semibold">
+                    <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                      <span className="flex items-center gap-1 text-amber-500 font-semibold">
                         <Flame className="w-3.5 h-3.5" /> {u.streak} day streak
                       </span>
                     </div>
@@ -72,8 +81,8 @@ export const LeaderboardPage: React.FC = () => {
                 </div>
 
                 <div className="text-right">
-                  <div className="text-base font-extrabold text-emerald-400">{u.xp.toLocaleString()} XP</div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Total Score</div>
+                  <div className="text-base font-extrabold text-green-600">{u.xp.toLocaleString()} XP</div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Total Score</div>
                 </div>
               </div>
             ))}

@@ -5,6 +5,7 @@ import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
 import { CheckCircle2, ArrowLeft, Lightbulb } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useTheme } from '../context/ThemeContext';
 
 interface LabStep {
   step_number: number;
@@ -24,6 +25,9 @@ interface Lab {
 }
 
 export const LabWorkspacePage: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const { labId } = useParams<{ labId: string }>();
   const [lab, setLab] = useState<Lab | null>(null);
   const [currentStepIdx, setCurrentStepIdx] = useState<number>(0);
@@ -130,40 +134,44 @@ export const LabWorkspacePage: React.FC = () => {
   const currentStep = lab?.steps[currentStepIdx];
 
   return (
-    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden">
+    <div className={`h-screen flex flex-col font-sans overflow-hidden transition-colors ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'
+    }`}>
       <Navbar remainingSeconds={remainingSeconds} />
 
       <div className="flex-1 flex flex-col lg:flex-row p-3 gap-3 overflow-hidden max-w-[1800px] w-full mx-auto">
-        <div className="w-full lg:w-96 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-          <div className="p-4 bg-slate-950 border-b border-slate-800">
-            <Link to="/labs" className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1 mb-2">
+        <div className={`w-full lg:w-96 flex flex-col border rounded-xl overflow-hidden shadow-sm ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <div className={`p-4 border-b ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+            <Link to="/labs" className="text-xs text-slate-500 hover:text-green-600 flex items-center gap-1 mb-2 font-medium">
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Labs
             </Link>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
                 {lab?.category}
               </span>
-              <span className="text-xs text-amber-400 font-bold">+{lab?.xp_reward} XP</span>
+              <span className="text-xs text-amber-500 font-bold">+{lab?.xp_reward} XP</span>
             </div>
-            <h1 className="text-base font-bold text-white mt-1">{lab?.title}</h1>
-            <p className="text-xs text-slate-400 mt-1">{lab?.description}</p>
+            <h1 className="text-base font-bold mt-1">{lab?.title}</h1>
+            <p className="text-xs text-slate-500 mt-1">{lab?.description}</p>
           </div>
 
-          <div className="flex border-b border-slate-800 bg-slate-900/80 px-2 py-1 gap-1">
+          <div className={`flex border-b px-2 py-1 gap-1 ${isDark ? 'border-slate-800 bg-slate-900/80' : 'border-slate-200 bg-slate-100/80'}`}>
             {lab?.steps.map((st, idx) => (
               <button
                 key={st.step_number}
                 onClick={() => { setCurrentStepIdx(idx); setVerificationResult(null); setShowHint(false); }}
                 className={`flex-1 py-1.5 rounded text-xs font-semibold flex items-center justify-center gap-1 transition ${
                   currentStepIdx === idx
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-green-600 text-white'
                     : completedSteps.includes(st.step_number)
-                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : isDark ? 'bg-slate-800 text-slate-400' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                 }`}
               >
                 {completedSteps.includes(st.step_number) ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
                 ) : (
                   <span>Step {st.step_number}</span>
                 )}
@@ -174,14 +182,16 @@ export const LabWorkspacePage: React.FC = () => {
           <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
             {currentStep && (
               <div className="space-y-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                <h3 className="text-sm font-bold flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-extrabold">
                     {currentStep.step_number}
                   </span>
                   {currentStep.title}
                 </h3>
 
-                <div className="bg-slate-950 border border-slate-800 p-3 rounded-lg text-slate-300 leading-relaxed">
+                <div className={`p-3 rounded-xl border leading-relaxed ${
+                  isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+                }`}>
                   {currentStep.instructions}
                 </div>
 
@@ -189,12 +199,12 @@ export const LabWorkspacePage: React.FC = () => {
                   <div>
                     <button
                       onClick={() => setShowHint(!showHint)}
-                      className="text-[11px] text-purple-400 hover:text-purple-300 flex items-center gap-1 font-semibold"
+                      className="text-[11px] text-purple-600 hover:text-purple-700 flex items-center gap-1 font-semibold"
                     >
                       <Lightbulb className="w-3.5 h-3.5" /> {showHint ? 'Hide Hint' : 'Show Hint'}
                     </button>
                     {showHint && (
-                      <div className="mt-2 bg-purple-950/40 border border-purple-500/30 p-2.5 rounded-lg text-purple-200 text-[11px]">
+                      <div className="mt-2 bg-purple-50 border border-purple-200 p-2.5 rounded-xl text-purple-800 text-[11px]">
                         💡 {currentStep.hint}
                       </div>
                     )}
@@ -203,10 +213,10 @@ export const LabWorkspacePage: React.FC = () => {
 
                 {verificationResult && (
                   <div
-                    className={`p-3 rounded-lg border text-xs ${
+                    className={`p-3 rounded-xl border text-xs font-medium ${
                       verificationResult.success
-                        ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
-                        : 'bg-red-950/60 border-red-500/40 text-red-300'
+                        ? 'bg-green-50 border-green-300 text-green-800'
+                        : 'bg-red-50 border-red-200 text-red-700'
                     }`}
                   >
                     {verificationResult.message}
@@ -216,11 +226,11 @@ export const LabWorkspacePage: React.FC = () => {
             )}
           </div>
 
-          <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between">
+          <div className={`p-3 border-t ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             <button
               onClick={handleVerifyStep}
               disabled={verifying}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold py-2.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
+              className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-sm"
             >
               <CheckCircle2 className="w-4 h-4" /> {verifying ? 'Running Docker Exec Check...' : 'Verify Step Solution ⚡'}
             </button>

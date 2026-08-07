@@ -3,8 +3,12 @@ import { XTerminal } from '../components/terminal/XTerminal';
 import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
 import { Terminal, RefreshCw } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 export const PlaygroundPage: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(1800);
   const [externalCommand, setExternalCommand] = useState<string | null>(null);
@@ -65,17 +69,19 @@ export const PlaygroundPage: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden">
+    <div className={`h-screen flex flex-col font-sans overflow-hidden transition-colors ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'
+    }`}>
       <Navbar remainingSeconds={remainingSeconds} onEndSession={handleEndSession} />
 
       <div className="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden max-w-[1700px] w-full mx-auto">
         <div className="flex-1 flex flex-col h-full overflow-hidden">
           <div className="flex items-center justify-between mb-2 px-1">
             <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-emerald-400" />
-              <h2 className="text-sm font-bold text-white">Ubuntu 24.04 Playground Sandbox</h2>
+              <Terminal className="w-4 h-4 text-green-600" />
+              <h2 className="text-sm font-bold">Ubuntu 24.04 Playground Sandbox</h2>
               {isMock && (
-                <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">
+                <span className="text-[10px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200 font-semibold">
                   Sandbox Simulation Mode
                 </span>
               )}
@@ -84,23 +90,27 @@ export const PlaygroundPage: React.FC = () => {
             <div className="flex items-center gap-2 text-xs">
               <button
                 onClick={initSession}
-                className="flex items-center gap-1 bg-slate-900 hover:bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-800 transition"
+                className={`flex items-center gap-1 px-3 py-1 rounded-xl border font-semibold transition ${
+                  isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`}
               >
-                <RefreshCw className="w-3 h-3 text-emerald-400" /> New Session
+                <RefreshCw className="w-3 h-3 text-green-600" /> New Session
               </button>
             </div>
           </div>
 
           <div className="flex-1 overflow-hidden">
             {loading ? (
-              <div className="h-full bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-center text-slate-400 text-sm gap-2">
-                <RefreshCw className="w-5 h-5 animate-spin text-emerald-400" />
+              <div className={`h-full border rounded-xl flex items-center justify-center text-sm gap-2 ${
+                isDark ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-500 shadow-sm'
+              }`}>
+                <RefreshCw className="w-5 h-5 animate-spin text-green-600" />
                 Spinning up isolated Ubuntu 24.04 container instance...
               </div>
             ) : sessionId ? (
               <XTerminal sessionId={sessionId} externalInput={externalCommand} />
             ) : (
-              <div className="h-full bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-center text-red-400 text-sm">
+              <div className="h-full bg-red-50 border border-red-200 rounded-xl flex items-center justify-center text-red-600 text-sm">
                 Failed to launch container session.
               </div>
             )}
