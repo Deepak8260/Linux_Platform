@@ -1,0 +1,30 @@
+# Python & FastAPI Backend .gitignore
+
+# Environment files
+.env
+*.env
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Databases & Local Uploads
+*.db
+*.sqlite
+app.db
+linux_arena.db
+linux_arena_dev.db
+uploads/
+logs/
+
+# Package Lock / Node artifacts if any
+node_modules/
