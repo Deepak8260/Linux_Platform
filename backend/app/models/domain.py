@@ -1,5 +1,6 @@
 import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, ForeignKey, JSON
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import relationship
 from app.database.session import Base
 
@@ -16,7 +17,7 @@ class User(Base):
     hashed_password = Column(String(255), nullable=True)
     auth_provider = Column(String(20), default="manual", nullable=False)
     provider_id = Column(String(100), nullable=True)
-    avatar_url = Column(Text, nullable=True)
+    avatar_url = Column(LONGTEXT, nullable=True)  # Supports Base64 image data URIs up to 4GB
     enrolled_course = Column(String(100), default="RHCSA Certification Track")
     batch = Column(String(100), default="RHCSA Batch 2026")
     xp = Column(Integer, default=1450)
