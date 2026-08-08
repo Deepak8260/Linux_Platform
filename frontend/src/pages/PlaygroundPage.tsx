@@ -84,11 +84,11 @@ export const PlaygroundPage: React.FC = () => {
       <Navbar remainingSeconds={sessionId ? remainingSeconds : null} onEndSession={handleEndSession} />
 
       <div className="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden max-w-[1700px] w-full mx-auto">
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <div className="flex-[3] flex flex-col h-full overflow-hidden">
           <div className="flex items-center justify-between mb-2 px-1">
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-green-600" />
-              <h2 className="text-sm font-bold">Ubuntu 24.04 Playground Sandbox</h2>
+              <h2 className="text-sm font-bold">Ubuntu Sandbox</h2>
               {isMock && (
                 <span className="text-[10px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200 font-semibold">
                   Sandbox Simulation Mode
@@ -114,7 +114,7 @@ export const PlaygroundPage: React.FC = () => {
                 isDark ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-500 shadow-sm'
               }`}>
                 <RefreshCw className="w-5 h-5 animate-spin text-green-600" />
-                Spinning up isolated Ubuntu 24.04 container instance...
+                Launching your Ubuntu Sandbox...
               </div>
             ) : sessionId ? (
               <XTerminal sessionId={sessionId} externalInput={externalCommand} />
@@ -126,23 +126,23 @@ export const PlaygroundPage: React.FC = () => {
                   <Terminal className="w-10 h-10" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-extrabold mb-1">No Active Sandbox Session</h3>
+                  <h3 className="text-lg font-extrabold mb-1">No Active Ubuntu Sandbox</h3>
                   <p className="text-xs text-slate-400 max-w-md">
-                    Click below to review instance specifications and confirm spinning up a live Ubuntu 24.04 container instance.
+                    Click below to review the sandbox details and confirm launching your Ubuntu Sandbox.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowSpinModal(true)}
                   className="bg-green-600 hover:bg-green-700 text-white font-extrabold px-6 py-3 rounded-2xl text-xs flex items-center gap-2 transition shadow-lg shadow-green-600/20"
                 >
-                  <Play className="w-4 h-4 fill-white" /> Spin Up Live Sandbox (30m)
+                  <Play className="w-4 h-4 fill-white" /> Launch Ubuntu Sandbox (30m)
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        <div className="w-full md:w-96 h-full overflow-hidden">
+        <div className="w-full md:flex-1 h-full overflow-hidden">
           <AIMentorPanel onRunCommand={handleRunSuggestedCommand} />
         </div>
       </div>

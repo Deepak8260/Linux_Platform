@@ -286,16 +286,16 @@ export const LabWorkspacePage: React.FC = () => {
                 <Terminal className="w-10 h-10" />
               </div>
               <div>
-                <h3 className="text-lg font-extrabold mb-1">No Active Sandbox Session</h3>
+                <h3 className="text-lg font-extrabold mb-1">No Active Ubuntu Sandbox</h3>
                 <p className="text-xs text-slate-400 max-w-md">
-                  To practice this lab, click below to review specifications and confirm spinning up a live Ubuntu 24.04 container.
+                  To practice this lab, click below to review the sandbox details and confirm launching your Ubuntu Sandbox.
                 </p>
               </div>
               <button
                 onClick={() => setShowSpinModal(true)}
                 className="bg-green-600 hover:bg-green-700 text-white font-extrabold px-6 py-3 rounded-2xl text-xs flex items-center gap-2 transition shadow-lg shadow-green-600/20"
               >
-                <Play className="w-4 h-4 fill-white" /> Spin Up Live Lab Sandbox (30m)
+                <Play className="w-4 h-4 fill-white" /> Launch Ubuntu Sandbox (30m)
               </button>
             </div>
           )}

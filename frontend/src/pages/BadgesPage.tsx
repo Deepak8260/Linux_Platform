@@ -8,13 +8,18 @@ export const BadgesPage: React.FC = () => {
   const isDark = theme === 'dark';
 
   const allBadges = [
-    { name: 'Container Master', desc: 'Spin up 5 disposable Ubuntu container sessions', unlocked: true, icon: '🚀' },
-    { name: 'Terminal Explorer', desc: 'Execute 50 terminal commands in live bash sandbox', unlocked: true, icon: '💻' },
-    { name: 'Scripting Pro', desc: 'Complete 5 guided Linux coreutils labs', unlocked: true, icon: '📜' },
-    { name: 'RHCSA Aspirant', desc: 'Pass the RHCSA Admin User Setup simulation', unlocked: true, icon: '🛡️' },
-    { name: 'Kernel Master', desc: 'Maintain a 14-day continuous daily practice streak', unlocked: false, requirement: '14-Day Streak (Progress: 7/14)', icon: '🧠' },
-    { name: 'DevOps Orchestrator', desc: 'Deploy 5 Nginx & Docker web container labs', unlocked: false, requirement: 'Complete 5 DevOps Labs (Progress: 1/5)', icon: '⚙️' },
+    { name: 'Container Master', desc: 'Spin up 5 Ubuntu Sandbox sessions', unlocked: true, inProgress: false, icon: '🚀' },
+    { name: 'Terminal Explorer', desc: 'Execute 50 terminal commands in live bash sandbox', unlocked: true, inProgress: false, icon: '💻' },
+    { name: 'Scripting Pro', desc: 'Complete 5 guided Linux coreutils labs', unlocked: true, inProgress: false, icon: '📜' },
+    { name: 'RHCSA Aspirant', desc: 'Pass the RHCSA Admin User Setup simulation', unlocked: true, inProgress: false, icon: '🛡️' },
+    { name: 'Kernel Master', desc: 'Maintain a 14-day continuous daily practice streak', unlocked: false, inProgress: true, requirement: '14-Day Streak (Progress: 7/14)', icon: '🧠' },
+    { name: 'DevOps Orchestrator', desc: 'Deploy 5 Nginx & Docker web container labs', unlocked: false, inProgress: true, requirement: 'Complete 5 DevOps Labs (Progress: 1/5)', icon: '⚙️' },
   ];
+
+  // Derived counts from badge data (not hardcoded)
+  const earnedCount = allBadges.filter(b => b.unlocked).length;
+  const inProgressCount = allBadges.filter(b => !b.unlocked && b.inProgress).length;
+  const upcomingCount = allBadges.filter(b => !b.unlocked && !b.inProgress).length;
 
   return (
     <div className={`min-h-screen flex flex-col font-sans transition-colors ${
@@ -32,6 +37,22 @@ export const BadgesPage: React.FC = () => {
             <Award className="w-7 h-7 text-amber-500" /> My Badges & Milestones
           </h1>
           <p className="text-sm text-slate-500">Track unlocked achievement badges and progress towards upcoming Linux & DevOps milestones.</p>
+        </div>
+
+        {/* Summary Row */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className={`border rounded-2xl p-4 text-center shadow-sm ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <div className="text-2xl font-extrabold text-green-600">{earnedCount}</div>
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Earned</div>
+          </div>
+          <div className={`border rounded-2xl p-4 text-center shadow-sm ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <div className="text-2xl font-extrabold text-amber-500">{inProgressCount}</div>
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">In Progress</div>
+          </div>
+          <div className={`border rounded-2xl p-4 text-center shadow-sm ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <div className="text-2xl font-extrabold text-slate-400">{upcomingCount}</div>
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Upcoming</div>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

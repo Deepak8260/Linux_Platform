@@ -14,6 +14,12 @@ export const DashboardPage: React.FC = () => {
 
   const [showSpinModal, setShowSpinModal] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
+  // TODO: wire this up to the real sandbox/session status API once available.
+  const [hasActiveSandbox] = useState(false);
+
+  const completedLabs = user?.completed_labs || 8;
+  const totalLabs = 20;
+  const learningProgressPct = Math.round((completedLabs / totalLabs) * 100);
 
   const handleConfirmSpin = () => {
     setIsLaunching(true);
@@ -27,7 +33,7 @@ export const DashboardPage: React.FC = () => {
   const recentActivity = [
     { type: 'lab', title: 'Completed: Linux Coreutils & Navigation', time: '2 hours ago', icon: '✅' },
     { type: 'badge', title: 'Earned: Terminal Pioneer Badge', time: 'Yesterday', icon: '🏆' },
-    { type: 'sandbox', title: 'Created: Disposable Ubuntu 24.04 Container', time: 'Today', icon: '🚀' },
+    { type: 'sandbox', title: 'Created: Ubuntu Sandbox', time: 'Today', icon: '🚀' },
   ];
 
   return (
@@ -38,39 +44,52 @@ export const DashboardPage: React.FC = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8 w-full flex-1 space-y-8">
         
-        {/* Personalized Welcome Banner */}
-        <div className={`border rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm relative overflow-hidden ${
+        {/* Personalized Welcome Banner (compact) */}
+        <div className={`border rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm relative overflow-hidden ${
           isDark ? 'bg-gradient-to-r from-slate-900 via-slate-900 to-slate-850 border-slate-800' : 'bg-gradient-to-r from-emerald-50 via-white to-green-50 border-slate-200'
         }`}>
-          <div className="space-y-3 text-center md:text-left z-10">
-            <div className="flex items-center justify-center md:justify-start gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
-                {user?.level || 'RHCSA Aspirant'}
-              </span>
-              <span className="text-xs text-slate-400 font-mono">Student ID: {user?.student_id || 'LA-10452'}</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+          <div className="flex items-center gap-3 text-center sm:text-left z-10">
+            <h1 className="text-lg sm:text-xl font-extrabold tracking-tight">
               Welcome back, <span className="text-green-600">{user?.name || 'Deepak'}</span> 👋
             </h1>
-
-            <p className="text-xs sm:text-sm text-slate-500 max-w-xl">
-              You are on a <strong className="text-amber-600">{user?.streak || 7}-day streak!</strong> Keep practicing Linux administration & DevOps labs to unlock your next certification badge.
-            </p>
+            <span className="hidden sm:inline px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
+              {user?.level || 'RHCSA Aspirant'}
+            </span>
+            <span className="hidden md:inline text-[10px] text-slate-400 font-mono">Student ID: {user?.student_id || 'LA-10452'}</span>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 z-10 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 z-10 w-full sm:w-auto">
             <button
               onClick={() => setShowSpinModal(true)}
-              className="bg-green-600 hover:bg-green-700 text-white font-extrabold px-6 py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-green-600/20"
+              className="bg-green-600 hover:bg-green-700 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md shadow-green-600/20"
             >
-              <Terminal className="w-4 h-4" /> Spin Up Live Ubuntu Sandbox
+              <Terminal className="w-4 h-4" /> Launch Ubuntu Sandbox
             </button>
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid: Labs Completed, Current Streak, Total XP, Learning Progress */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`border rounded-3xl p-5 space-y-1 shadow-sm ${
+            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              Labs Completed <BookOpen className="w-4 h-4 text-cyan-600" />
+            </div>
+            <div className="text-2xl font-extrabold text-cyan-600">{completedLabs} <span className="text-xs font-normal text-slate-400">/ {totalLabs}</span></div>
+            <div className="text-[10px] text-slate-400 font-medium">{learningProgressPct}% of curriculum</div>
+          </div>
+
+          <div className={`border rounded-3xl p-5 space-y-1 shadow-sm ${
+            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              Current Streak <Flame className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-2xl font-extrabold text-amber-600">{user?.streak || 7} <span className="text-xs font-normal text-slate-400">Days</span></div>
+            <div className="text-[10px] text-slate-400 font-medium">Personal Best: 12 days</div>
+          </div>
+
           <div className={`border rounded-3xl p-5 space-y-1 shadow-sm ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
           }`}>
@@ -85,38 +104,18 @@ export const DashboardPage: React.FC = () => {
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
           }`}>
             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              Daily Streak <Flame className="w-4 h-4 text-amber-500" />
+              Learning Progress <Award className="w-4 h-4 text-purple-600" />
             </div>
-            <div className="text-2xl font-extrabold text-amber-600">{user?.streak || 7} <span className="text-xs font-normal text-slate-400">Days</span></div>
-            <div className="text-[10px] text-slate-400 font-medium">Personal Best: 12 days</div>
-          </div>
-
-          <div className={`border rounded-3xl p-5 space-y-1 shadow-sm ${
-            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-          }`}>
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              Completed Labs <BookOpen className="w-4 h-4 text-cyan-600" />
-            </div>
-            <div className="text-2xl font-extrabold text-cyan-600">{user?.completed_labs || 8} <span className="text-xs font-normal text-slate-400">/ 20</span></div>
-            <div className="text-[10px] text-slate-400 font-medium">40% Curriculum Complete</div>
-          </div>
-
-          <div className={`border rounded-3xl p-5 space-y-1 shadow-sm ${
-            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-          }`}>
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              Badges Earned <Award className="w-4 h-4 text-purple-600" />
-            </div>
-            <div className="text-2xl font-extrabold text-purple-600">{user?.badges?.length || 3} <span className="text-xs font-normal text-slate-400">Badges</span></div>
-            <div className="text-[10px] text-purple-600 font-semibold">Next: Kernel Master</div>
+            <div className="text-2xl font-extrabold text-purple-600">{learningProgressPct}<span className="text-xs font-normal text-slate-400">%</span></div>
+            <div className="text-[10px] text-purple-600 font-semibold">Curriculum complete</div>
           </div>
         </div>
 
-        {/* Highlight Section: Continue Where Left Off & Active Sandbox Status */}
-        <div className="grid md:grid-cols-2 gap-6">
-          
-          {/* Continue Where Left Off */}
-          <div className={`border rounded-3xl p-6 space-y-4 shadow-sm flex flex-col justify-between ${
+        {/* Highlight Section: Continue Where Left Off (primary) & Active Sandbox Status */}
+        <div className="grid md:grid-cols-3 gap-6">
+
+          {/* Continue Where Left Off - largest, most prominent card */}
+          <div className={`md:col-span-2 border rounded-3xl p-8 space-y-5 shadow-md flex flex-col justify-between ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
           }`}>
             <div className="space-y-3">
@@ -127,8 +126,8 @@ export const DashboardPage: React.FC = () => {
                 <span className="text-xs font-bold text-green-600">65% Complete</span>
               </div>
 
-              <h3 className="text-lg font-extrabold">Linux File Permissions & Ownership</h3>
-              <p className="text-xs text-slate-500">Practice `chmod 755`, `chown`, and `umask` security configurations in live bash terminal.</p>
+              <h3 className="text-2xl font-extrabold">Linux File Permissions & Ownership</h3>
+              <p className="text-sm text-slate-500">Practice `chmod 755`, `chown`, and `umask` security configurations in live bash terminal.</p>
             </div>
 
             <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between">
@@ -144,45 +143,60 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Active Sandbox Status */}
-          <div className={`border rounded-3xl p-6 space-y-4 shadow-sm flex flex-col justify-between ${
-            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-          }`}>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> SANDBOX READY
-                </span>
-                <span className="text-xs text-slate-400 font-mono">Ubuntu 24.04 LTS</span>
+          {/* Active Sandbox Status - conditional, compact when no active sandbox */}
+          {hasActiveSandbox ? (
+            <div className={`border rounded-3xl p-6 space-y-4 shadow-sm flex flex-col justify-between ${
+              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> SANDBOX READY
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">Ubuntu 24.04 LTS</span>
+                </div>
+
+                <h3 className="text-lg font-extrabold flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-green-600" /> Active Ubuntu Sandbox
+                </h3>
+                <p className="text-xs text-slate-500">Your isolated Ubuntu Sandbox is ready with 30-minute auto-expiry safety TTL.</p>
               </div>
 
-              <h3 className="text-lg font-extrabold flex items-center gap-2">
-                <Cpu className="w-5 h-5 text-green-600" /> Active Disposable Container
-              </h3>
-              <p className="text-xs text-slate-500">Your isolated Linux sandbox instance is ready with 30-minute auto-expiry safety TTL.</p>
+              <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-mono">Remaining: <strong className="text-green-600 font-bold">28m 45s</strong></span>
+                <button
+                  onClick={() => setShowSpinModal(true)}
+                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition"
+                >
+                  <Terminal className="w-3.5 h-3.5 text-green-400" /> Open Terminal →
+                </button>
+              </div>
             </div>
-
-            <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs text-slate-400 font-mono">Remaining: <strong className="text-green-600 font-bold">28m 45s</strong></span>
+          ) : (
+            <div className={`border rounded-3xl p-6 flex flex-col items-center justify-center text-center gap-3 shadow-sm ${
+              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <Cpu className="w-6 h-6 text-slate-400" />
+              <p className="text-xs font-semibold text-slate-400">No active sandbox</p>
               <button
-                onClick={() => setShowSpinModal(true)}
-                className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition"
+                onClick={() => navigate('/playground')}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition"
               >
-                <Terminal className="w-3.5 h-3.5 text-green-400" /> Open Terminal →
+                <Terminal className="w-3.5 h-3.5" /> Launch Playground
               </button>
             </div>
-          </div>
+          )}
 
         </div>
 
-        {/* Recommended Practice Labs & Recent Activity */}
+        {/* Recommended Next & Recent Activity */}
         <div className="grid lg:grid-cols-3 gap-6">
-          
-          {/* Practice Modules */}
+
+          {/* Recommended Next */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-extrabold flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-green-600" /> Practice Modules
+                <BookOpen className="w-5 h-5 text-green-600" /> Recommended Next
               </h2>
               <Link to="/labs" className="text-xs font-bold text-green-600 hover:underline">View All Labs →</Link>
             </div>
@@ -218,19 +232,19 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Recent Activity Feed */}
-          <div className={`border rounded-3xl p-6 space-y-4 shadow-sm ${
+          {/* Recent Activity - compact timeline */}
+          <div className={`border rounded-3xl p-6 space-y-1 shadow-sm ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
           }`}>
-            <h2 className="text-lg font-bold border-b pb-3 border-slate-200/80">Recent Activity</h2>
-            <div className="space-y-3 text-xs">
+            <h2 className="text-lg font-bold border-b pb-3 mb-2 border-slate-200/80">Recent Activity</h2>
+            <div className="divide-y divide-slate-200/70 dark:divide-slate-800 text-xs">
               {recentActivity.map((act, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                  <span className="text-base">{act.icon}</span>
-                  <div>
-                    <div className="font-semibold text-slate-900 dark:text-white">{act.title}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">{act.time}</div>
+                <div key={idx} className="flex items-center gap-3 py-2.5">
+                  <span className="text-sm">{act.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-900 dark:text-white truncate">{act.title}</div>
                   </div>
+                  <div className="text-[10px] text-slate-400 whitespace-nowrap">{act.time}</div>
                 </div>
               ))}
             </div>

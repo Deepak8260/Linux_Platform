@@ -106,7 +106,7 @@ export const ProfilePage: React.FC = () => {
               onClick={() => setShowCropperModal(true)}
               className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 py-2.5 rounded-2xl text-xs flex items-center gap-2 transition border border-slate-700 shadow-sm"
             >
-              <Upload className="w-4 h-4 text-green-400" /> Upload Device Image
+              <Upload className="w-4 h-4 text-green-400" /> Change Profile Photo
             </button>
 
             <button
@@ -284,33 +284,33 @@ export const ProfilePage: React.FC = () => {
             )}
           </div>
 
-          {/* Progress Overview Sidebar */}
+          {/* Learning Profile Sidebar (identity-focused, not a stats duplicate of Dashboard) */}
           <div className={`border rounded-3xl p-6 space-y-4 shadow-sm ${
             isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
           }`}>
             <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-4 border-slate-200 dark:border-slate-800">
-              <Sparkles className="w-5 h-5 text-green-600" /> Progress Stats
+              <Sparkles className="w-5 h-5 text-green-600" /> Learning Profile
             </h2>
 
             <div className="space-y-3 text-xs">
               <div className="flex items-center justify-between p-3.5 rounded-2xl bg-green-500/10 border border-green-500/20">
-                <span className="font-bold">Total XP</span>
-                <span className="font-extrabold text-green-500 text-sm">{user?.xp || 1450} XP</span>
+                <span className="font-bold">Current Track</span>
+                <span className="font-extrabold text-green-500 text-sm">{user?.enrolled_course || 'RHCSA Certification Track'}</span>
               </div>
 
               <div className="flex items-center justify-between p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                <span className="font-bold">Daily Streak</span>
-                <span className="font-extrabold text-amber-500 text-sm">{user?.streak || 7} Days 🔥</span>
+                <span className="font-bold">Current Level</span>
+                <span className="font-extrabold text-amber-500 text-sm">{user?.level || 'RHCSA Aspirant'}</span>
               </div>
 
               <div className="flex items-center justify-between p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
-                <span className="font-bold">Completed Labs</span>
-                <span className="font-extrabold text-cyan-500 text-sm">{user?.completed_labs || 8} Labs</span>
+                <span className="font-bold">Joined</span>
+                <span className="font-extrabold text-cyan-500 text-sm">{user?.joined_date || 'Jan 2026'}</span>
               </div>
 
               <div className="flex items-center justify-between p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20">
-                <span className="font-bold">Earned Badges</span>
-                <span className="font-extrabold text-purple-500 text-sm">{user?.badges?.length || 3} Badges</span>
+                <span className="font-bold">Completed Labs</span>
+                <span className="font-extrabold text-purple-500 text-sm">{user?.completed_labs || 8} Labs</span>
               </div>
             </div>
           </div>
@@ -366,7 +366,7 @@ export const ProfilePage: React.FC = () => {
                 onClick={() => { setShowAvatarPicker(false); setShowCropperModal(true); }}
                 className="bg-green-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2"
               >
-                <Upload className="w-4 h-4" /> Upload & Crop Device Image Instead
+                <Upload className="w-4 h-4" /> Upload & Crop Photo Instead
               </button>
             </div>
 

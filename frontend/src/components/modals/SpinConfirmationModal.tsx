@@ -69,11 +69,11 @@ export const SpinConfirmationModal: React.FC<SpinConfirmationModalProps> = ({
         {/* Modal Header */}
         <div className="text-center space-y-2 mb-6">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 dark:bg-emerald-950 text-green-700 dark:text-emerald-400 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5" /> Docker Container Sandbox
+            <Sparkles className="w-3.5 h-3.5" /> Ubuntu Sandbox
           </div>
-          <h2 className="text-2xl font-extrabold tracking-tight">Spin Up Ubuntu Instance?</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight">Launch Ubuntu Sandbox?</h2>
           <p className="text-xs text-slate-400">
-            Confirm launching a fresh, isolated bash sandbox instance on the server.
+            Confirm launching a fresh Ubuntu Sandbox.
           </p>
         </div>
 
@@ -94,39 +94,46 @@ export const SpinConfirmationModal: React.FC<SpinConfirmationModalProps> = ({
               <Clock className="w-4 h-4 text-amber-500 animate-pulse" /> 30-Minute Session Duration
             </div>
             <p className="leading-relaxed opacity-90">
-              This live Ubuntu instance will run for <strong>exactly 30 minutes</strong>. After 30 mins, the session auto-expires and cleans up to maintain platform performance.
+              This Ubuntu Sandbox will run for <strong>exactly 30 minutes</strong>. After 30 mins, the session auto-expires and cleans up to maintain platform performance.
             </p>
           </div>
         )}
 
-        {/* Specs & Instance Grid */}
+        {/* Simplified Sandbox Info Grid */}
         <div className="grid grid-cols-2 gap-3 mb-6 text-xs">
           <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             <div className="text-slate-400 font-semibold mb-1 flex items-center gap-1">
-              <Terminal className="w-3.5 h-3.5 text-green-500" /> OS Image
+              <Terminal className="w-3.5 h-3.5 text-green-500" /> Ubuntu Version
             </div>
             <div className="font-extrabold text-sm">Ubuntu 24.04 LTS</div>
           </div>
 
           <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             <div className="text-slate-400 font-semibold mb-1 flex items-center gap-1">
-              <Cpu className="w-3.5 h-3.5 text-cyan-500" /> Resources
-            </div>
-            <div className="font-extrabold text-sm">0.5 vCPU • 256MB</div>
-          </div>
-
-          <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-            <div className="text-slate-400 font-semibold mb-1 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-purple-500" /> Permissions
-            </div>
-            <div className="font-extrabold text-sm">Root Bash Access</div>
-          </div>
-
-          <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-            <div className="text-slate-400 font-semibold mb-1 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-amber-500" /> Auto-Expiry TTL
+              <Clock className="w-3.5 h-3.5 text-amber-500" /> Session Duration
             </div>
             <div className="font-extrabold text-sm text-green-500">30 Minutes</div>
+          </div>
+
+          <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+            <div className="text-slate-400 font-semibold mb-1 flex items-center gap-1">
+              <Cpu className="w-3.5 h-3.5 text-cyan-500" /> Isolated Environment
+            </div>
+            <div className="font-extrabold text-sm">Fully Isolated</div>
+          </div>
+
+          <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+            <div className="text-slate-400 font-semibold mb-1 flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-purple-500" /> Root Access
+            </div>
+            <div className="font-extrabold text-sm">Enabled</div>
+          </div>
+
+          <div className={`col-span-2 p-3 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+            <div className="text-slate-400 font-semibold mb-1 flex items-center gap-1">
+              <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Automatically Deleted After Session
+            </div>
+            <div className="text-[11px] text-slate-400">No data persists once the sandbox session ends.</div>
           </div>
         </div>
 
@@ -152,12 +159,12 @@ export const SpinConfirmationModal: React.FC<SpinConfirmationModalProps> = ({
             }`}
           >
             {isLaunching ? (
-              <>Spinning Up Instance...</>
+              <>Launching Sandbox...</>
             ) : cooldownRemaining > 0 ? (
               <>Wait {formatCooldown(cooldownRemaining)}</>
             ) : (
               <>
-                <Check className="w-4 h-4" /> Spin Up Instance (30m)
+                <Check className="w-4 h-4" /> Launch Sandbox
               </>
             )}
           </button>

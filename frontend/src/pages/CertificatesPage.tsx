@@ -12,17 +12,19 @@ export const CertificatesPage: React.FC = () => {
   const certificatesList = [
     {
       id: 'cert-rhcsa-2026',
-      title: 'Red Hat Certified System Administrator (RHCSA) Practice Mastery',
+      title: 'LinuxArena RHCSA Practice Mastery',
       issueDate: 'August 2026',
       serialNumber: 'LA-CERT-2026-849201',
-      skills: ['Linux Coreutils', 'User Management', 'Permissions & Sudo', 'Systemd Services']
+      skills: ['Linux Coreutils', 'User Management', 'Permissions & Sudo', 'Systemd Services'],
+      disclaimer: 'Issued by LinuxArena. This certificate verifies completion of LinuxArena practical labs and is not an official Red Hat certification.'
     },
     {
       id: 'cert-docker-2026',
-      title: 'Docker & DevOps Fundamentals Specialist',
+      title: 'LinuxArena Docker & DevOps Fundamentals Specialist',
       issueDate: 'July 2026',
       serialNumber: 'LA-CERT-2026-392014',
-      skills: ['Docker Engine', 'Nginx Configuration', 'Process Troubleshooting']
+      skills: ['Docker Engine', 'Nginx Configuration', 'Process Troubleshooting'],
+      disclaimer: 'Issued by LinuxArena. This certificate verifies completion of LinuxArena practical labs and is not an official vendor certification.'
     }
   ];
 
@@ -82,6 +84,10 @@ export const CertificatesPage: React.FC = () => {
                     </span>
                   ))}
                 </div>
+
+                <p className="text-[10px] text-slate-400 italic leading-relaxed pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
+                  {cert.disclaimer}
+                </p>
               </div>
 
               {/* Action Buttons */}
@@ -97,7 +103,7 @@ export const CertificatesPage: React.FC = () => {
                   onClick={() => handleShareLinkedIn(cert.title)}
                   className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-sm"
                 >
-                  <Share2 className="w-4 h-4" /> LinkedIn
+                  <Share2 className="w-4 h-4" /> Share Achievement
                 </button>
               </div>
             </div>

@@ -204,7 +204,7 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
                 <button
                   onClick={() => setShowTerminateModal(true)}
                   className="ml-1 text-slate-400 hover:text-red-500 transition font-extrabold px-1"
-                  title="End Container Session"
+                  title="End Sandbox Session"
                 >
                   ✕
                 </button>

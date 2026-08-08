@@ -18,7 +18,7 @@ export const AIMentorPanel: React.FC<AIMentorPanelProps> = ({ onRunCommand, cont
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: "👋 **Hi! I'm your Gemini AI DevOps Mentor.** Ask me how to run commands, fix errors, write Bash scripts, or configure Nginx & Docker!",
+      text: "👋 **Hi! I'm your AI DevOps Mentor.** Ask me how to run commands, fix errors, write Bash scripts, or configure Nginx & Docker!",
       suggestedCommands: ['uname -a', 'ls -la /etc']
     }
   ]);
@@ -70,7 +70,7 @@ export const AIMentorPanel: React.FC<AIMentorPanelProps> = ({ onRunCommand, cont
           </div>
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-              Gemini AI Mentor
+              AI DevOps Mentor
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
                 Safe-Mode Active
               </span>

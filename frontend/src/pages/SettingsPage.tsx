@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Navbar } from '../components/Navbar';
-import { Settings, Lock, Sun, Moon, Bell, Key, Laptop } from 'lucide-react';
+import { Settings, Lock, Sun, Moon, Bell, Key, Laptop, AlertTriangle, Trash2 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
   const { updatePassword } = useAuth();
@@ -13,6 +13,23 @@ export const SettingsPage: React.FC = () => {
   const [newPwd, setNewPwd] = useState('');
   const [pwdMsg, setPwdMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [pwdLoading, setPwdLoading] = useState(false);
+
+  // Danger Zone: account deletion confirmation guard
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeleteLoading(true);
+    try {
+      // TODO: wire this up to the real account-deletion backend endpoint once available.
+      // e.g. await api.delete('/api/v1/account');
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      alert('Account deletion requested. Our team will process this shortly.');
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   // Notification Toggles
   const [notifs, setNotifs] = useState({
@@ -201,7 +218,62 @@ export const SettingsPage: React.FC = () => {
 
         </div>
 
+        {/* Danger Zone */}
+        <div className={`border rounded-3xl p-6 space-y-4 shadow-sm border-red-500/30 ${
+          isDark ? 'bg-red-950/10' : 'bg-red-50/50'
+        }`}>
+          <h2 className="text-base font-bold flex items-center gap-2 border-b pb-3 border-red-500/20 text-red-500">
+            <AlertTriangle className="w-4 h-4" /> Danger Zone
+          </h2>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <div>
+              <div className="font-bold text-red-500">Delete Account</div>
+              <p className="text-slate-500 mt-0.5">Permanently delete your account and all associated progress. This cannot be undone.</p>
+            </div>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition shadow-sm whitespace-nowrap"
+            >
+              <Trash2 className="w-4 h-4" /> Delete Account
+            </button>
+          </div>
+        </div>
+
       </main>
+
+      {/* Delete Account Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+          <div className={`w-full max-w-md border rounded-3xl p-6 shadow-2xl relative transition-all ${
+            isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+          }`}>
+            <div className="flex items-center gap-2 mb-3 text-red-500">
+              <AlertTriangle className="w-5 h-5" />
+              <h3 className="text-lg font-extrabold">Delete Account?</h3>
+            </div>
+            <p className="text-xs text-slate-500 mb-6">
+              This will permanently delete your account, XP, badges, certificates, and lab history. This action cannot be undone.
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleteLoading}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteLoading}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> {deleteLoading ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

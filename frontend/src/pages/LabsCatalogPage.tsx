@@ -93,7 +93,7 @@ export const LabsCatalogPage: React.FC = () => {
                 to={`/labs/${lab.id}`}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition"
               >
-                <Play className="w-4 h-4 fill-white" /> Start Practice Environment
+                <Play className="w-4 h-4 fill-white" /> Start Lab
               </Link>
             </div>
           ))}
