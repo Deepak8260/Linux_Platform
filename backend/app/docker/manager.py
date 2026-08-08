@@ -38,6 +38,7 @@ class ContainerSession:
 class DockerSessionManager:
     def __init__(self):
         self.sessions: Dict[str, ContainerSession] = {}
+        self.user_cooldowns: Dict[str, float] = {}
         self.docker_client = None
         self._init_docker()
 
@@ -57,6 +58,14 @@ class DockerSessionManager:
     async def create_session(self, session_id: str, user_id: str) -> ContainerSession:
         # Clean expired sessions first
         await self.clean_expired_sessions()
+
+        # Check 5-minute cooldown constraint
+        cooldown_until = self.user_cooldowns.get(user_id, 0)
+        if time.time() < cooldown_until:
+            remaining_cooldown = int(cooldown_until - time.time())
+            m = remaining_cooldown // 60
+            s = remaining_cooldown % 60
+            raise RuntimeError(f"5-Minute Cooldown Active. Please wait {m}m {s}s before spinning up a new container instance.")
 
         # ABSOLUTE 1-CONTAINER GUARANTEE: If ANY active session exists, reuse it!
         for existing in list(self.sessions.values()):
@@ -102,13 +111,17 @@ class DockerSessionManager:
                     remove=False
                 )
 
-                # Setup student user directory inside container
+                # Setup student user, sudo, and permissions inside container
+                container.exec_run("apt-get update -y && apt-get install -y sudo curl")
                 container.exec_run("useradd -m -s /bin/bash student || true")
-                container.exec_run("chown -R student:student /home/student || true")
+                container.exec_run("usermod -aG sudo student || true")
+                container.exec_run("bash -c \"echo 'student ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/student\"")
+                container.exec_run("chmod 0440 /etc/sudoers.d/student")
+                container.exec_run("chown -R student:student /home/student")
 
                 session = ContainerSession(session_id, user_id, container_obj=container, is_mock=False)
                 self.sessions[session_id] = session
-                logger.info(f"Created SINGLE container session {session_id} for user {user_id}")
+                logger.info(f"Created SINGLE container session {session_id} for user {user_id} with full sudo permissions")
                 return session
 
             except Exception as e:
@@ -138,14 +151,16 @@ class DockerSessionManager:
 
     async def terminate_session(self, session_id: str):
         session = self.sessions.pop(session_id, None)
-        if not session:
-            return
 
-        if session.container_obj and not session.is_mock:
+        if session:
+            # Set 5-minute cooldown (300 seconds)
+            self.user_cooldowns[session.user_id] = time.time() + 300.0
+
+        if session and session.container_obj and not session.is_mock:
             try:
                 session.container_obj.stop(timeout=2)
                 session.container_obj.remove(force=True)
-                logger.info(f"Destroyed Docker container for session {session_id}")
+                logger.info(f"Destroyed Docker container for session {session_id} and set 5-min cooldown")
             except Exception as e:
                 logger.error(f"Error destroying container {session_id}: {e}")
 

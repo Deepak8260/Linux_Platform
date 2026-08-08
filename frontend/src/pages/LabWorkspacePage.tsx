@@ -3,7 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { XTerminal } from '../components/terminal/XTerminal';
 import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
-import { CheckCircle2, ArrowLeft, Lightbulb } from 'lucide-react';
+import { SpinConfirmationModal } from '../components/modals/SpinConfirmationModal';
+import { useAuth } from '../context/AuthContext';
+import { CheckCircle2, ArrowLeft, Lightbulb, Terminal, Play, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useTheme } from '../context/ThemeContext';
 
@@ -26,6 +28,7 @@ interface Lab {
 
 export const LabWorkspacePage: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const isDark = theme === 'dark';
 
   const { labId } = useParams<{ labId: string }>();
@@ -38,6 +41,8 @@ export const LabWorkspacePage: React.FC = () => {
   const [verifying, setVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<{ success: boolean; message: string } | null>(null);
   const [showHint, setShowHint] = useState(false);
+  const [showSpinModal, setShowSpinModal] = useState(false);
+  const [isLaunching, setIsLaunching] = useState(false);
 
   useEffect(() => {
     const fetchLab = async () => {
@@ -77,25 +82,55 @@ export const LabWorkspacePage: React.FC = () => {
       }
     };
 
-    const createSession = async () => {
-      try {
-        const res = await fetch('http://localhost:8000/api/v1/sessions/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: 'usr_student' })
-        });
-        const data = await res.json();
-        setSessionId(data.session_id);
-        setRemainingSeconds(data.remaining_seconds);
-      } catch (e) {
-        setSessionId(`sess_${Math.random().toString(36).substring(2, 10)}`);
-        setRemainingSeconds(1800);
-      }
-    };
-
     fetchLab();
-    createSession();
   }, [labId]);
+
+  const initSession = async () => {
+    try {
+      const userId = user?.id || 'usr_student';
+      const res = await fetch('http://localhost:8000/api/v1/sessions/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId })
+      });
+      const data = await res.json();
+      setSessionId(data.session_id);
+      setRemainingSeconds(data.remaining_seconds);
+    } catch (e) {
+      setSessionId(`sess_${Math.random().toString(36).substring(2, 10)}`);
+      setRemainingSeconds(1800);
+    }
+  };
+
+  const handleConfirmSpin = async () => {
+    setIsLaunching(true);
+    await initSession();
+    setIsLaunching(false);
+    setShowSpinModal(false);
+  };
+
+  const handleEndSession = async () => {
+    if (sessionId) {
+      try {
+        await fetch(`http://localhost:8000/api/v1/sessions/${sessionId}/terminate`, { method: 'POST' });
+      } catch (e) {}
+    }
+    setSessionId(null);
+  };
+
+  useEffect(() => {
+    if (!sessionId) return;
+    const interval = setInterval(() => {
+      setRemainingSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sessionId]);
 
   const handleVerifyStep = async () => {
     if (!lab || !sessionId) return;
@@ -137,9 +172,11 @@ export const LabWorkspacePage: React.FC = () => {
     <div className={`h-screen flex flex-col font-sans overflow-hidden transition-colors ${
       isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'
     }`}>
-      <Navbar remainingSeconds={remainingSeconds} />
+      <Navbar remainingSeconds={sessionId ? remainingSeconds : null} onEndSession={handleEndSession} />
 
       <div className="flex-1 flex flex-col lg:flex-row p-3 gap-3 overflow-hidden max-w-[1800px] w-full mx-auto">
+        
+        {/* Left Lab Guide Panel */}
         <div className={`w-full lg:w-96 flex flex-col border rounded-xl overflow-hidden shadow-sm ${
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
         }`}>
@@ -229,24 +266,54 @@ export const LabWorkspacePage: React.FC = () => {
           <div className={`p-3 border-t ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             <button
               onClick={handleVerifyStep}
-              disabled={verifying}
+              disabled={verifying || !sessionId}
               className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-sm"
             >
-              <CheckCircle2 className="w-4 h-4" /> {verifying ? 'Running Docker Exec Check...' : 'Verify Step Solution ⚡'}
+              <CheckCircle2 className="w-4 h-4" /> {verifying ? 'Running Exec Check...' : 'Verify Step Solution ⚡'}
             </button>
           </div>
         </div>
 
+        {/* Middle Terminal Sandbox Panel */}
         <div className="flex-1 flex flex-col h-full overflow-hidden">
-          {sessionId && (
+          {sessionId ? (
             <XTerminal sessionId={sessionId} externalInput={externalCommand} />
+          ) : (
+            <div className={`h-full border rounded-2xl flex flex-col items-center justify-center text-center p-8 space-y-4 ${
+              isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            }`}>
+              <div className="p-4 rounded-full bg-green-500/10 text-green-500">
+                <Terminal className="w-10 h-10" />
+              </div>
+              <div>
+                <h3 className="text-lg font-extrabold mb-1">No Active Sandbox Session</h3>
+                <p className="text-xs text-slate-400 max-w-md">
+                  To practice this lab, click below to review specifications and confirm spinning up a live Ubuntu 24.04 container.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowSpinModal(true)}
+                className="bg-green-600 hover:bg-green-700 text-white font-extrabold px-6 py-3 rounded-2xl text-xs flex items-center gap-2 transition shadow-lg shadow-green-600/20"
+              >
+                <Play className="w-4 h-4 fill-white" /> Spin Up Live Lab Sandbox (30m)
+              </button>
+            </div>
           )}
         </div>
 
+        {/* Right AI DevOps Mentor Panel */}
         <div className="w-full lg:w-80 h-full overflow-hidden hidden xl:block">
           <AIMentorPanel onRunCommand={(cmd) => setExternalCommand(cmd)} />
         </div>
       </div>
+
+      {/* Confirmation Modal prior to spinning container */}
+      <SpinConfirmationModal
+        isOpen={showSpinModal}
+        onClose={() => setShowSpinModal(false)}
+        onConfirm={handleConfirmSpin}
+        isLaunching={isLaunching}
+      />
     </div>
   );
 };

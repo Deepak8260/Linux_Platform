@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { TerminateConfirmationModal } from './modals/TerminateConfirmationModal';
 
 interface NavbarProps {
   remainingSeconds?: number | null;
@@ -22,6 +23,8 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showTerminateModal, setShowTerminateModal] = useState(false);
+  const [isTerminating, setIsTerminating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const notificationsList = [
@@ -89,16 +92,27 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
             <BookOpen className="w-4 h-4" /> Practice Labs
           </Link>
 
-          <Link
-            to="/playground"
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition ${
-              isActive('/playground')
-                ? isDark ? 'bg-slate-800 text-emerald-400' : 'bg-green-50 text-green-700'
-                : isDark ? 'text-slate-300 hover:bg-slate-900 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-            }`}
-          >
-            <Terminal className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-green-600'}`} /> Playground
-          </Link>
+          {user ? (
+            <Link
+              to="/playground"
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition ${
+                isActive('/playground')
+                  ? isDark ? 'bg-slate-800 text-emerald-400' : 'bg-green-50 text-green-700'
+                  : isDark ? 'text-slate-300 hover:bg-slate-900 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <Terminal className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-green-600'}`} /> Playground
+            </Link>
+          ) : (
+            <button
+              onClick={openAuthModal}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition ${
+                isDark ? 'text-slate-300 hover:bg-slate-900 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <Terminal className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-green-600'}`} /> Playground
+            </button>
+          )}
 
           {user && (
             <Link
@@ -188,8 +202,8 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
               <span className="font-mono font-bold text-green-600">{formatTime(remainingSeconds)}</span>
               {onEndSession && (
                 <button
-                  onClick={onEndSession}
-                  className="ml-1 text-slate-400 hover:text-red-500 transition"
+                  onClick={() => setShowTerminateModal(true)}
+                  className="ml-1 text-slate-400 hover:text-red-500 transition font-extrabold px-1"
                   title="End Container Session"
                 >
                   ✕
@@ -342,6 +356,28 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
           </div>
         </div>
       )}
+
+      {/* Terminate Session Confirmation Modal */}
+      <TerminateConfirmationModal
+        isOpen={showTerminateModal}
+        onClose={() => setShowTerminateModal(false)}
+        onConfirmTerminate={() => {
+          setIsTerminating(true);
+          const cooldownUntil = Date.now() + 5 * 60 * 1000;
+          localStorage.setItem('linuxarena_cooldown_until', cooldownUntil.toString());
+
+          if (onEndSession) {
+            onEndSession();
+          }
+
+          setTimeout(() => {
+            setIsTerminating(false);
+            setShowTerminateModal(false);
+            navigate('/dashboard');
+          }, 500);
+        }}
+        isTerminating={isTerminating}
+      />
     </header>
   );
 };

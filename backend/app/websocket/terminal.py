@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import threading
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.docker.manager import docker_manager
 
@@ -25,6 +26,11 @@ class SimulatedBashShell:
         cmd_str = cmd_str.strip()
         if not cmd_str:
             return ""
+
+        # Handle sudo prefixes
+        if cmd_str.startswith("sudo "):
+            clean_cmd = cmd_str[5:].strip()
+            return f"\r\n[sudo] password for {self.user}: \r\n" + self.execute_command(clean_cmd)
 
         parts = cmd_str.split()
         base = parts[0]
@@ -57,8 +63,13 @@ class SimulatedBashShell:
                 self.files[parts[1]] = ""
                 return ""
             return "\r\nmkdir: missing operand"
+        elif base == "apt" or base == "apt-get":
+            pkg = parts[2] if len(parts) > 2 else "package"
+            return f"\r\nReading package lists... Done\r\nBuilding dependency tree... Done\r\n{pkg} is already the newest version (2.12-1).\r\n0 upgraded, 0 newly installed."
+        elif base == "docker":
+            return "\r\nClient: Docker Engine - Community\r\n Version:           24.0.5\r\n API version:       1.43"
         elif base == "help":
-            return "\r\nAvailable commands: ls, cat, pwd, whoami, uname -a, touch, mkdir, clear, echo, date, uptime"
+            return "\r\nAvailable commands: ls, cat, pwd, whoami, uname -a, touch, mkdir, clear, echo, date, uptime, sudo, apt"
         elif base == "date":
             import datetime
             return f"\r\n{datetime.datetime.now().strftime('%a %b %d %H:%M:%S UTC %Y')}"
@@ -68,7 +79,7 @@ class SimulatedBashShell:
             text = " ".join(parts[1:]).strip("\"'")
             return f"\r\n{text}"
         else:
-            return f"\r\n{cmd_str}"
+            return f"\r\n{cmd_str}: command executed successfully."
 
 
 @router.websocket("/ws/terminal/{session_id}")
@@ -96,42 +107,61 @@ async def websocket_terminal_endpoint(websocket: WebSocket, session_id: str):
                 stdin=True,
                 stdout=True,
                 stderr=True,
-                tty=True
+                tty=True,
+                user="root"
             )
             sock = container.client.api.exec_start(exec_instance['Id'], detach=False, tty=True, socket=True)
-            sock._sock.setblocking(False)
 
-            async def read_docker_pty():
-                loop = asyncio.get_running_loop()
+            loop = asyncio.get_running_loop()
+
+            # Thread reader for Docker PTY socket on Windows & Linux
+            def pty_reader_thread():
                 while True:
                     try:
-                        data = await loop.sock_recv(sock._sock, 1024)
-                        if not data:
+                        if hasattr(sock, 'read'):
+                            chunk = sock.read(1024)
+                        elif hasattr(sock, '_sock'):
+                            chunk = sock._sock.recv(1024)
+                        else:
                             break
-                        await websocket.send_text(data.decode("utf-8", errors="ignore"))
-                    except (asyncio.CancelledError, WebSocketDisconnect):
-                        break
-                    except Exception:
-                        await asyncio.sleep(0.05)
 
-            pty_task = asyncio.create_task(read_docker_pty())
+                        if not chunk:
+                            break
+
+                        text = chunk.decode("utf-8", errors="ignore")
+                        asyncio.run_coroutine_threadsafe(websocket.send_text(text), loop)
+                    except Exception:
+                        break
+
+            reader_thread = threading.Thread(target=pty_reader_thread, daemon=True)
+            reader_thread.start()
 
             while True:
                 data = await websocket.receive_text()
                 try:
                     msg = json.loads(data)
                     if msg.get("type") == "input":
-                        sock._sock.send(msg["data"].encode("utf-8"))
+                        payload = msg["data"].encode("utf-8")
                     elif msg.get("type") == "resize":
                         try:
                             container.client.api.exec_resize(exec_instance['Id'], height=msg["rows"], width=msg["cols"])
                         except Exception:
                             pass
+                        continue
+                    else:
+                        payload = data.encode("utf-8")
                 except json.JSONDecodeError:
-                    sock._sock.send(data.encode("utf-8"))
+                    payload = data.encode("utf-8")
+
+                if hasattr(sock, 'write'):
+                    sock.write(payload)
+                    if hasattr(sock, 'flush'):
+                        sock.flush()
+                elif hasattr(sock, '_sock'):
+                    sock._sock.send(payload)
 
         except Exception as e:
-            logger.error(f"Docker PTY connection error: {e}. Switching to simulator.")
+            logger.error(f"Docker PTY socket error: {e}. Switching to simulator.")
             session.is_mock = True
 
     if session.is_mock:

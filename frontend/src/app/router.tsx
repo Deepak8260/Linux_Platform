@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 import { LandingPage } from '../pages/LandingPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { PlaygroundPage } from '../pages/PlaygroundPage';
@@ -18,47 +19,87 @@ export const router = createBrowserRouter([
     element: <LandingPage />,
   },
   {
-    path: '/dashboard',
-    element: <DashboardPage />,
-  },
-  {
-    path: '/playground',
-    element: <PlaygroundPage />,
-  },
-  {
     path: '/labs',
     element: <LabsCatalogPage />,
   },
   {
+    path: '/dashboard',
+    element: (
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/playground',
+    element: (
+      <ProtectedRoute>
+        <PlaygroundPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/labs/:labId',
-    element: <LabWorkspacePage />,
+    element: (
+      <ProtectedRoute>
+        <LabWorkspacePage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/challenges',
-    element: <ChallengesPage />,
+    element: (
+      <ProtectedRoute>
+        <ChallengesPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/leaderboard',
-    element: <LeaderboardPage />,
+    element: (
+      <ProtectedRoute>
+        <LeaderboardPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/recruiter',
-    element: <RecruiterPage />,
+    element: (
+      <ProtectedRoute>
+        <RecruiterPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/profile',
-    element: <ProfilePage />,
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/settings',
-    element: <SettingsPage />,
+    element: (
+      <ProtectedRoute>
+        <SettingsPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/certificates',
-    element: <CertificatesPage />,
+    element: (
+      <ProtectedRoute>
+        <CertificatesPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/badges',
-    element: <BadgesPage />,
+    element: (
+      <ProtectedRoute>
+        <BadgesPage />
+      </ProtectedRoute>
+    ),
   },
 ]);

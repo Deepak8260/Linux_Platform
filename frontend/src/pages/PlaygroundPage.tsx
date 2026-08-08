@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { XTerminal } from '../components/terminal/XTerminal';
 import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
+import { SpinConfirmationModal } from '../components/modals/SpinConfirmationModal';
 import { useAuth } from '../context/AuthContext';
-import { Terminal, RefreshCw } from 'lucide-react';
+import { Terminal, RefreshCw, Play } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export const PlaygroundPage: React.FC = () => {
@@ -14,10 +15,10 @@ export const PlaygroundPage: React.FC = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(1800);
   const [externalCommand, setExternalCommand] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isMock, setIsMock] = useState(false);
-
-  const didInitRef = useRef(false);
+  const [showSpinModal, setShowSpinModal] = useState<boolean>(true);
+  const [isLaunching, setIsLaunching] = useState<boolean>(false);
 
   const initSession = async () => {
     setLoading(true);
@@ -41,12 +42,12 @@ export const PlaygroundPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (!didInitRef.current) {
-      didInitRef.current = true;
-      initSession();
-    }
-  }, []);
+  const handleConfirmSpin = async () => {
+    setIsLaunching(true);
+    await initSession();
+    setIsLaunching(false);
+    setShowSpinModal(false);
+  };
 
   useEffect(() => {
     if (!sessionId) return;
@@ -68,7 +69,7 @@ export const PlaygroundPage: React.FC = () => {
         await fetch(`http://localhost:8000/api/v1/sessions/${sessionId}/terminate`, { method: 'POST' });
       } catch (e) {}
     }
-    initSession();
+    setSessionId(null);
   };
 
   const handleRunSuggestedCommand = (cmd: string) => {
@@ -80,7 +81,7 @@ export const PlaygroundPage: React.FC = () => {
     <div className={`h-screen flex flex-col font-sans overflow-hidden transition-colors ${
       isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'
     }`}>
-      <Navbar remainingSeconds={remainingSeconds} onEndSession={handleEndSession} />
+      <Navbar remainingSeconds={sessionId ? remainingSeconds : null} onEndSession={handleEndSession} />
 
       <div className="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden max-w-[1700px] w-full mx-auto">
         <div className="flex-1 flex flex-col h-full overflow-hidden">
@@ -97,7 +98,7 @@ export const PlaygroundPage: React.FC = () => {
 
             <div className="flex items-center gap-2 text-xs">
               <button
-                onClick={initSession}
+                onClick={() => setShowSpinModal(true)}
                 className={`flex items-center gap-1 px-3 py-1 rounded-xl border font-semibold transition ${
                   isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
@@ -118,8 +119,24 @@ export const PlaygroundPage: React.FC = () => {
             ) : sessionId ? (
               <XTerminal sessionId={sessionId} externalInput={externalCommand} />
             ) : (
-              <div className="h-full bg-red-50 border border-red-200 rounded-xl flex items-center justify-center text-red-600 text-sm">
-                Failed to launch container session.
+              <div className={`h-full border rounded-2xl flex flex-col items-center justify-center text-center p-8 space-y-4 ${
+                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              }`}>
+                <div className="p-4 rounded-full bg-green-500/10 text-green-500">
+                  <Terminal className="w-10 h-10" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold mb-1">No Active Sandbox Session</h3>
+                  <p className="text-xs text-slate-400 max-w-md">
+                    Click below to review instance specifications and confirm spinning up a live Ubuntu 24.04 container instance.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowSpinModal(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white font-extrabold px-6 py-3 rounded-2xl text-xs flex items-center gap-2 transition shadow-lg shadow-green-600/20"
+                >
+                  <Play className="w-4 h-4 fill-white" /> Spin Up Live Sandbox (30m)
+                </button>
               </div>
             )}
           </div>
@@ -129,6 +146,14 @@ export const PlaygroundPage: React.FC = () => {
           <AIMentorPanel onRunCommand={handleRunSuggestedCommand} />
         </div>
       </div>
+
+      {/* Confirmation Modal prior to spinning container */}
+      <SpinConfirmationModal
+        isOpen={showSpinModal}
+        onClose={() => setShowSpinModal(false)}
+        onConfirm={handleConfirmSpin}
+        isLaunching={isLaunching}
+      />
     </div>
   );
 };
