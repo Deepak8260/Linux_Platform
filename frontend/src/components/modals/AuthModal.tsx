@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { X, Lock, Mail, User as UserIcon, Sparkles, Phone } from 'lucide-react';
@@ -15,6 +16,53 @@ export const AuthModal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Google Sign-In only works once a real OAuth Client ID (from Google Cloud
+  // Console) is set as VITE_GOOGLE_CLIENT_ID in frontend/.env. Without it,
+  // clicking the button would send users to a real Google page showing
+  // "Error 401: invalid_client" — so we catch that case ourselves instead.
+  const isGoogleConfigured = Boolean((import.meta as any).env?.VITE_GOOGLE_CLIENT_ID);
+
+  // Official Google OAuth Popup Handler using @react-oauth/google
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setError(null);
+      setLoading(true);
+      try {
+        // Fetch authentic Google user profile directly from Google OAuth API
+        const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const googleUser = await googleRes.json();
+        
+        if (googleUser && googleUser.email) {
+          await loginOAuth(
+            'google',
+            googleUser.name || googleUser.email.split('@')[0],
+            googleUser.email,
+            googleUser.picture
+          );
+        } else {
+          throw new Error('Failed to retrieve user profile from Google');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Google Authentication failed');
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError('Google Sign-In popup was closed or canceled.');
+    },
+  });
+
+  const handleGoogleClick = () => {
+    if (!isGoogleConfigured) {
+      setError('Google Sign-In is not set up yet. Add a valid VITE_GOOGLE_CLIENT_ID to frontend/.env.');
+      return;
+    }
+    handleGoogleLogin();
+  };
 
   if (!isAuthModalOpen) return null;
 
@@ -36,26 +84,10 @@ export const AuthModal: React.FC = () => {
     }
   };
 
-  const handleGoogleOAuth = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      // Simulate Google OAuth popup response
-      const sampleEmail = email || `developer_${Math.floor(Math.random() * 1000)}@gmail.com`;
-      const sampleName = name || 'Google Developer';
-      await loginOAuth('google', sampleName, sampleEmail);
-    } catch (err: any) {
-      setError(err.message || 'Google Auth Error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleGitHubOAuth = async () => {
     setError(null);
     setLoading(true);
     try {
-      // Simulate GitHub OAuth popup response
       const sampleEmail = email || `dev_${Math.floor(Math.random() * 1000)}@github.com`;
       const sampleName = name || 'GitHub Engineer';
       await loginOAuth('github', sampleName, sampleEmail);
@@ -98,13 +130,16 @@ export const AuthModal: React.FC = () => {
           </div>
         )}
 
-        {/* OAuth Social Login Buttons */}
+        {/* Real OAuth Social Login Buttons */}
         <div className="space-y-2.5 mb-6">
           <button
             type="button"
-            onClick={handleGoogleOAuth}
+            onClick={handleGoogleClick}
             disabled={loading}
+            title={!isGoogleConfigured ? 'Google Sign-In is not configured yet' : undefined}
             className={`w-full py-2.5 px-4 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-sm ${
+              !isGoogleConfigured ? 'opacity-60' : ''
+            } ${
               isDark ? 'bg-slate-800 border-slate-700 text-white hover:bg-slate-750' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
             }`}
           >
