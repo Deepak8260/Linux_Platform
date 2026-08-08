@@ -27,13 +27,13 @@ export const LabsCatalogPage: React.FC = () => {
         setLabs([
           { id: 'lab-01-navigation', title: 'Linux File Navigation & Discovery', category: 'Linux Fundamentals', difficulty: 'Easy', xp_reward: 100, description: 'Master foundational directory navigation and coreutils.' },
           { id: 'lab-02-permissions', title: 'File Permissions & Ownership (Chmod/Chown)', category: 'Users & Permissions', difficulty: 'Medium', xp_reward: 150, description: 'Set read, write, execution bits and owner groups.' },
-          { id: 'lab-03-rhcsa-user-group', title: 'RHCSA Exam Challenge: Admin User Setup', category: 'RHCSA', difficulty: 'Hard', xp_reward: 250, description: 'Create sysadmin group, add user devops, configure passwordless sudo.' },
+          { id: 'lab-03-rhcsa-user-group', title: 'Linux Admin Exam Challenge: Admin User Setup', category: 'Linux Administration', difficulty: 'Hard', xp_reward: 250, description: 'Create sysadmin group, add user devops, configure passwordless sudo.' },
           { id: 'lab-04-docker-nginx', title: 'DevOps Lab: Deploy Nginx Web Container', category: 'Docker & DevOps', difficulty: 'Medium', xp_reward: 200, description: 'Launch web server container and inspect active processes.' }
         ]);
       });
   }, []);
 
-  const categories = ['All', 'Linux Fundamentals', 'Users & Permissions', 'RHCSA', 'Docker & DevOps'];
+  const categories = ['All', 'Linux Fundamentals', 'Users & Permissions', 'Linux Administration', 'Docker & DevOps'];
 
   const filteredLabs = selectedCategory === 'All'
     ? labs

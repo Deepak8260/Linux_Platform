@@ -11,7 +11,7 @@ export const BadgesContent: React.FC = () => {
     { name: 'Container Master', desc: 'Spin up 5 Ubuntu Sandbox sessions', unlocked: true, inProgress: false, icon: '🚀' },
     { name: 'Terminal Explorer', desc: 'Execute 50 terminal commands in live bash sandbox', unlocked: true, inProgress: false, icon: '💻' },
     { name: 'Scripting Pro', desc: 'Complete 5 guided Linux coreutils labs', unlocked: true, inProgress: false, icon: '📜' },
-    { name: 'RHCSA Aspirant', desc: 'Pass the RHCSA Admin User Setup simulation', unlocked: true, inProgress: false, icon: '🛡️' },
+    { name: 'Linux Administration Specialist', desc: 'Pass the Linux Admin User Setup simulation', unlocked: true, inProgress: false, icon: '🛡️' },
     { name: 'Kernel Master', desc: 'Maintain a 14-day continuous daily practice streak', unlocked: false, inProgress: true, requirement: '14-Day Streak (Progress: 7/14)', icon: '🧠' },
     { name: 'DevOps Orchestrator', desc: 'Deploy 5 Nginx & Docker web container labs', unlocked: false, inProgress: true, requirement: 'Complete 5 DevOps Labs (Progress: 1/5)', icon: '⚙️' },
   ];

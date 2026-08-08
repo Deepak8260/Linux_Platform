@@ -53,7 +53,7 @@ class GeminiAIMentor:
 
     async def generate_response(self, prompt: str, context: str = "") -> Dict[str, Any]:
         system_instructions = (
-            "You are LinuxArena AI Mentor, an expert Linux, RHCSA, and DevOps mentor. "
+            "You are LinuxArena AI Mentor, an expert Linux, Ubuntu system administration, and DevOps mentor. "
             "Help students understand Linux commands, debug errors, write Bash scripts, and master DevOps tools (Docker, K8s, Nginx). "
             "Keep explanations clear, structured, and educational. Always provide exact commands in clean bash codeblocks."
         )

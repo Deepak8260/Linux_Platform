@@ -145,11 +145,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         username: 'deepak_dev',
         email: 'kd8260@gmail.com',
         auth_provider: 'manual',
-        enrolled_course: 'RHCSA Certification Track',
-        batch: 'RHCSA Batch 2026',
+        enrolled_course: 'Linux Administration Track',
+        batch: 'Linux Administration Batch 2026',
         xp: 1450,
         streak: 7,
-        level: 'RHCSA Aspirant',
+        level: 'Linux Administrator',
         badges: ['Container Master', 'Terminal Explorer', 'Scripting Pro'],
         completed_labs: 8
       };

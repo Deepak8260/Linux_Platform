@@ -44,11 +44,11 @@ class UserProfile(BaseModel):
     phone: Optional[str] = "+91 9876543210"
     avatar_url: Optional[str] = None
     auth_provider: str = "manual"
-    enrolled_course: str = "RHCSA Certification Track"
-    batch: str = "RHCSA Batch 2026"
+    enrolled_course: str = "Linux Administration Track"
+    batch: str = "Linux Administration Batch 2026"
     xp: int = 1450
     streak: int = 7
-    level: str = "RHCSA Aspirant"
+    level: str = "Linux Administrator"
     badges: List[str] = ["Container Master", "Terminal Explorer", "Scripting Pro"]
     completed_labs: int = 8
     created_at: Optional[str] = None

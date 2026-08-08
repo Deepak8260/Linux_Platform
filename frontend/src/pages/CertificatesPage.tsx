@@ -11,12 +11,12 @@ export const CertificatesContent: React.FC = () => {
 
   const certificatesList = [
     {
-      id: 'cert-rhcsa-2026',
-      title: 'LinuxArena RHCSA Practice Mastery',
+      id: 'cert-linux-admin-2026',
+      title: 'LinuxArena Linux Administration Mastery',
       issueDate: 'August 2026',
       serialNumber: 'LA-CERT-2026-849201',
       skills: ['Linux Coreutils', 'User Management', 'Permissions & Sudo', 'Systemd Services'],
-      disclaimer: 'Issued by LinuxArena. This certificate verifies completion of LinuxArena practical labs and is not an official Red Hat certification.'
+      disclaimer: 'Issued by LinuxArena. This certificate verifies completion of LinuxArena practical labs and is not an official third-party vendor certification.'
     },
     {
       id: 'cert-docker-2026',

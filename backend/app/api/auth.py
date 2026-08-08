@@ -36,11 +36,11 @@ def user_to_profile(user: User) -> UserProfile:
         phone=user.phone or "+91 9876543210",
         avatar_url=user.avatar_url,
         auth_provider=user.auth_provider,
-        enrolled_course=user.enrolled_course or "RHCSA Certification Track",
-        batch=user.batch or "RHCSA Batch 2026",
+        enrolled_course=user.enrolled_course or "Linux Administration Track",
+        batch=user.batch or "Linux Administration Batch 2026",
         xp=user.xp if user.xp is not None else 1450,
         streak=user.streak if user.streak is not None else 7,
-        level=user.level or "RHCSA Aspirant",
+        level=user.level or "Linux Administrator",
         badges=parse_badges(user.badges),
         completed_labs=user.completed_labs if user.completed_labs is not None else 8,
         created_at=user.created_at.strftime("%Y-%m-%d") if user.created_at else "2026-01-15"
@@ -72,7 +72,7 @@ async def signup(user_data: UserSignup, db: Session = Depends(get_db)):
         auth_provider="manual",
         xp=1450,
         streak=7,
-        level="RHCSA Aspirant",
+        level="Linux Administrator",
         badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
         completed_labs=8
     )
@@ -104,7 +104,7 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
             auth_provider="manual",
             xp=1450,
             streak=7,
-            level="RHCSA Aspirant",
+            level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
             completed_labs=8
         )
@@ -151,7 +151,7 @@ async def google_auth(req: OAuthAuthRequest, db: Session = Depends(get_db)):
             avatar_url=req.avatar_url or "https://lh3.googleusercontent.com/a/default-user",
             xp=1450,
             streak=7,
-            level="RHCSA Aspirant",
+            level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
             completed_labs=8
         )
@@ -186,7 +186,7 @@ async def github_auth(req: OAuthAuthRequest, db: Session = Depends(get_db)):
             avatar_url=req.avatar_url or "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
             xp=1450,
             streak=7,
-            level="RHCSA Aspirant",
+            level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
             completed_labs=8
         )
@@ -223,7 +223,7 @@ async def get_me(token: Optional[str] = Depends(oauth2_scheme), db: Session = De
                 auth_provider="manual",
                 xp=1450,
                 streak=7,
-                level="RHCSA Aspirant",
+                level="Linux Administrator",
                 badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
                 completed_labs=8
             )
@@ -259,7 +259,7 @@ async def update_profile(
             auth_provider="manual",
             xp=1450,
             streak=7,
-            level="RHCSA Aspirant",
+            level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
             completed_labs=8
         )

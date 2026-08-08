@@ -23,9 +23,9 @@ export const ChallengesPage: React.FC = () => {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold">
               <ShieldCheck className="w-4 h-4 text-purple-600" /> Exam Mode Enabled
             </div>
-            <h1 className="text-3xl font-extrabold">RHCSA & DevOps Timed Challenges</h1>
+            <h1 className="text-3xl font-extrabold">Linux Administration & DevOps Timed Challenges</h1>
             <p className="text-sm text-slate-600 max-w-xl">
-              Simulate actual Red Hat Certified System Administrator (EX200) exams with strict timers and disabled AI assistance to test your true command-line speed and knowledge.
+              Simulate real-world Linux system administration exams with strict timers and disabled AI assistance to test your true command-line speed and knowledge.
             </p>
           </div>
 
@@ -33,7 +33,7 @@ export const ChallengesPage: React.FC = () => {
             to="/labs/lab-03-rhcsa-user-group"
             className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3.5 rounded-xl text-sm flex items-center gap-2 transition shadow-md shadow-purple-600/20"
           >
-            <Play className="w-4 h-4" /> Start RHCSA Exam Simulation
+            <Play className="w-4 h-4" /> Start Linux Admin Exam Simulation
           </Link>
         </div>
 
@@ -41,7 +41,7 @@ export const ChallengesPage: React.FC = () => {
           <div className={`border rounded-2xl p-6 space-y-4 shadow-sm ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
             <div className="flex items-center justify-between">
               <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                RHCSA Practical Test #1
+                Linux Admin Practical Test #1
               </span>
               <span className="flex items-center gap-1 text-xs text-slate-500">
                 <Timer className="w-4 h-4 text-amber-500" /> 45 Minutes

@@ -24,7 +24,7 @@ export const RecruiterPage: React.FC = () => {
       .catch(() => {
         setAssessments([
           { id: 'eval-01', title: 'Senior DevOps Engineer Linux Practical Test', topic: 'Linux Admin + K8s', duration_minutes: 45, candidate_count: 12, status: 'Active' },
-          { id: 'eval-02', title: 'RHCSA System Administrator Screening', topic: 'Users, Permissions, Storage', duration_minutes: 60, candidate_count: 8, status: 'Completed' }
+          { id: 'eval-02', title: 'Linux System Administrator Screening', topic: 'Users, Permissions, Storage', duration_minutes: 60, candidate_count: 8, status: 'Completed' }
         ]);
       });
   }, []);

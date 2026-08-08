@@ -87,7 +87,7 @@ export const DashboardPage: React.FC = () => {
               Welcome back, <span className="text-green-600">{user?.name || 'Deepak'}</span> 👋
             </h1>
             <span className="hidden sm:inline px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
-              {user?.level || 'RHCSA Aspirant'}
+              {user?.level || 'Linux Administrator'}
             </span>
             <span className="hidden md:inline text-[10px] text-slate-400 font-mono">Student ID: {user?.student_id || 'LA-10452'}</span>
           </div>
@@ -254,7 +254,7 @@ export const DashboardPage: React.FC = () => {
                 isDark ? 'bg-slate-900 border-slate-800 hover:border-emerald-500/40' : 'bg-white border-slate-200 hover:border-green-400'
               }`}>
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">RHCSA Specialization</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">Linux Administration Specialization</span>
                   <span className="text-xs font-bold text-green-600">+250 XP</span>
                 </div>
                 <h3 className="font-bold text-sm">Admin User & Sudo Security Setup</h3>

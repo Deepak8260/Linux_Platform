@@ -88,7 +88,7 @@ export const ProfileContent: React.FC = () => {
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <h1 className="text-2xl font-extrabold tracking-tight">{user?.name || 'Kumar Deepak'}</h1>
                 <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-emerald-950 text-green-700 dark:text-emerald-400 border border-green-200 dark:border-emerald-800">
-                  {user?.level || 'RHCSA Aspirant'}
+                  {user?.level || 'Linux Administrator'}
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-mono mt-1">Student ID: {user?.student_id || 'LA-10452'}</p>
@@ -268,12 +268,12 @@ export const ProfileContent: React.FC = () => {
 
                 <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="text-slate-400 font-semibold mb-1">Enrolled Track</div>
-                  <div className="font-extrabold text-sm text-green-600">{user?.enrolled_course || 'RHCSA Certification Track'}</div>
+                  <div className="font-extrabold text-sm text-green-600">{user?.enrolled_course || 'Linux Administration Track'}</div>
                 </div>
 
                 <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="text-slate-400 font-semibold mb-1">Batch / Class</div>
-                  <div className="font-extrabold text-sm">{user?.batch || 'RHCSA Batch 2026'}</div>
+                  <div className="font-extrabold text-sm">{user?.batch || 'Linux Administration Batch 2026'}</div>
                 </div>
               </div>
             )}

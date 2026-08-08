@@ -48,7 +48,7 @@ export const LandingPage: React.FC = () => {
           <p className={`text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed ${
             isDark ? 'text-slate-300' : 'text-slate-600'
           }`}>
-            Practice in real 30-minute disposable Ubuntu containers, get AI guidance, prepare for RHCSA exams, and master DevOps with hands-on scenario labs.
+            Practice in real 30-minute disposable Ubuntu containers, get AI guidance, prepare for Linux certification exams, and master DevOps with hands-on scenario labs.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">

@@ -55,7 +55,7 @@ const Home: React.FC = () => {
             through real <span className="text-green-600">Ubuntu labs.</span>
           </h1>
           <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Practice in real Ubuntu containers, get AI guidance,prepare for RHCSA,
+            Practice in real Ubuntu containers, get AI guidance, prepare for Linux certification,
             <br />
             and master DevOps with hands-on labs.
           </p>

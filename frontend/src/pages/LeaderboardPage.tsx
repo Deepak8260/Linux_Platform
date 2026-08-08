@@ -24,7 +24,7 @@ export const LeaderboardPage: React.FC = () => {
       .catch(() => {
         setUsers([
           { rank: 1, name: 'Sarah Jenkins', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', xp: 4850, streak: 24, badge: 'DevOps Legend' },
-          { rank: 2, name: 'David Kim', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', xp: 4120, streak: 19, badge: 'RHCSA Specialist' },
+          { rank: 2, name: 'David Kim', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', xp: 4120, streak: 19, badge: 'Linux Administration Specialist' },
           { rank: 3, name: 'Elena Rostova', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100', xp: 3890, streak: 14, badge: 'Kernel Master' },
           { rank: 4, name: 'Alex Student (You)', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100', xp: 1450, streak: 7, badge: 'Terminal Explorer' },
         ]);
@@ -44,7 +44,7 @@ export const LeaderboardPage: React.FC = () => {
             <Trophy className="w-4 h-4 text-yellow-600" /> Global Rankings
           </div>
           <h1 className="text-3xl font-extrabold">LinuxArena Global Leaderboard</h1>
-          <p className="text-xs text-slate-500">Earn XP by completing practical labs, maintaining daily streaks, and solving RHCSA challenges.</p>
+          <p className="text-xs text-slate-500">Earn XP by completing practical labs, maintaining daily streaks, and solving Linux administration challenges.</p>
         </div>
 
         <div className={`border rounded-2xl overflow-hidden shadow-sm ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>

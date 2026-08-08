@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Terminal, BookOpen, Sun, Moon, LogIn, LogOut, Cpu, Bell, Search, User,
-  Award, Settings, FileText, ChevronDown, X
+  Settings, ChevronDown, X
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -29,15 +29,15 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
 
   const notificationsList = [
     { id: 1, title: 'Sandbox expires in 30 mins', time: 'Just now', type: 'warning' },
-    { id: 2, title: 'New RHCSA Lab Released: Admin User Setup', time: '2 hours ago', type: 'info' },
+    { id: 2, title: 'New Linux Administration Lab Released: Admin User Setup', time: '2 hours ago', type: 'info' },
     { id: 3, title: 'Badge Earned: Terminal Pioneer', time: '1 day ago', type: 'success' },
-    { id: 4, title: 'RHCSA Completion Certificate Ready', time: '3 days ago', type: 'success' },
+    { id: 4, title: 'Linux Administration Certificate Ready', time: '3 days ago', type: 'success' },
   ];
 
   const searchItems = [
     { type: 'Lab', title: 'Linux File Navigation & Discovery', path: '/labs/lab-01-navigation' },
     { type: 'Lab', title: 'File Permissions & Ownership (Chmod/Chown)', path: '/labs/lab-02-permissions' },
-    { type: 'Lab', title: 'RHCSA Exam Challenge: Admin User Setup', path: '/labs/lab-03-rhcsa-user-group' },
+    { type: 'Lab', title: 'Linux Admin Exam Challenge: Admin User Setup', path: '/labs/lab-03-rhcsa-user-group' },
     { type: 'Lab', title: 'DevOps Lab: Deploy Nginx Web Container', path: '/labs/lab-04-docker-nginx' },
     { type: 'Command', title: 'chmod 755 - Grant execute permissions', path: '/playground' },
     { type: 'Command', title: 'useradd -g sysadmin devops - Create user', path: '/playground' },
@@ -241,7 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
                   <div className="p-3 border-b border-slate-200/80 mb-1">
                     <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">{user.name}</div>
                     <div className="text-[10px] text-slate-500 font-mono">ID: {user.student_id || 'LA-10452'}</div>
-                    <div className="text-[10px] text-green-600 font-bold mt-0.5">{user.level || 'RHCSA Aspirant'}</div>
+                    <div className="text-[10px] text-green-600 font-bold mt-0.5">{user.level || 'Linux Administrator'}</div>
                   </div>
 
                   {/* Menu Options */}
@@ -252,22 +252,6 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
                       className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-green-50 hover:text-green-700 transition"
                     >
                       <User className="w-4 h-4 text-green-600" /> My Profile
-                    </Link>
-
-                    <Link
-                      to="/badges"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-green-50 hover:text-green-700 transition"
-                    >
-                      <Award className="w-4 h-4 text-amber-500" /> My Badges
-                    </Link>
-
-                    <Link
-                      to="/certificates"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-green-50 hover:text-green-700 transition"
-                    >
-                      <FileText className="w-4 h-4 text-cyan-600" /> Certificates
                     </Link>
 
                     <Link

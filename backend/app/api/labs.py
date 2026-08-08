@@ -64,11 +64,11 @@ LABS_CATALOG: List[Lab] = [
     ),
     Lab(
         id="lab-03-rhcsa-user-group",
-        title="RHCSA Exam Challenge: Admin User Setup",
-        category="RHCSA",
+        title="Linux Admin Exam Challenge: Admin User Setup",
+        category="Linux Administration",
         difficulty="Hard",
         xp_reward=250,
-        description="Simulate RHCSA exam requirement: create sysadmin group, add user devops, set sudo permissions.",
+        description="Simulate a real-world Linux admin exam requirement: create sysadmin group, add user devops, set sudo permissions.",
         steps=[
             {
                 "step_number": 1,
