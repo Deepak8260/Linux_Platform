@@ -5,7 +5,7 @@ import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
 import { SpinConfirmationModal } from '../components/modals/SpinConfirmationModal';
 import { useAuth } from '../context/AuthContext';
-import { CheckCircle2, ArrowLeft, Lightbulb, Terminal, Play } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Lightbulb, Terminal, Play, MessageSquare, ChevronUp } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useTheme } from '../context/ThemeContext';
 
@@ -43,6 +43,7 @@ export const LabWorkspacePage: React.FC = () => {
   const [showHint, setShowHint] = useState(false);
   const [showSpinModal, setShowSpinModal] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
+  const [mentorCollapsed, setMentorCollapsed] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchLab = async () => {
@@ -275,7 +276,7 @@ export const LabWorkspacePage: React.FC = () => {
         </div>
 
         {/* Middle Terminal Sandbox Panel */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <div className="flex-1 flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out">
           {sessionId ? (
             <XTerminal sessionId={sessionId} externalInput={externalCommand} />
           ) : (
@@ -302,9 +303,23 @@ export const LabWorkspacePage: React.FC = () => {
         </div>
 
         {/* Right AI DevOps Mentor Panel */}
-        <div className="w-full lg:w-80 h-full overflow-hidden hidden xl:block">
-          <AIMentorPanel onRunCommand={(cmd) => setExternalCommand(cmd)} />
-        </div>
+        {mentorCollapsed ? (
+          <button
+            onClick={() => setMentorCollapsed(false)}
+            className={`hidden xl:flex w-14 h-full shrink-0 rounded-2xl border flex-col items-center justify-center gap-2 font-semibold text-xs transition-all duration-300 ease-in-out ${
+              isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm'
+            }`}
+            title="Expand AI DevOps Mentor"
+          >
+            <MessageSquare className="w-4 h-4 text-emerald-500" />
+            <span className="[writing-mode:vertical-rl] rotate-180">AI DevOps Mentor</span>
+            <ChevronUp className="w-3.5 h-3.5 rotate-90" />
+          </button>
+        ) : (
+          <div className="w-full lg:w-80 h-full overflow-hidden hidden xl:block transition-all duration-300 ease-in-out">
+            <AIMentorPanel onRunCommand={(cmd) => setExternalCommand(cmd)} onCollapse={() => setMentorCollapsed(true)} />
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal prior to spinning container */}

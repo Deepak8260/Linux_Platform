@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Sparkles, Send, Play, ShieldCheck, Terminal } from 'lucide-react';
+import { MessageSquare, Send, Play, ShieldCheck, Terminal, Loader2, ChevronDown } from 'lucide-react';
 
 interface AIMentorPanelProps {
   onRunCommand: (command: string) => void;
   contextText?: string;
+  onCollapse?: () => void;
 }
 
 interface Message {
@@ -12,7 +13,7 @@ interface Message {
   suggestedCommands?: string[];
 }
 
-export const AIMentorPanel: React.FC<AIMentorPanelProps> = ({ onRunCommand, contextText }) => {
+export const AIMentorPanel: React.FC<AIMentorPanelProps> = ({ onRunCommand, contextText, onCollapse }) => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -65,20 +66,31 @@ export const AIMentorPanel: React.FC<AIMentorPanelProps> = ({ onRunCommand, cont
     <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
       <div className="flex items-center justify-between bg-slate-950 px-4 py-3 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-gradient-to-tr from-purple-500 to-indigo-500 text-white">
-            <Sparkles className="w-4 h-4" />
+          <div className="p-1.5 rounded-lg bg-gradient-to-tr from-emerald-600 to-cyan-600 text-white">
+            <MessageSquare className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
               AI DevOps Mentor
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 Safe-Mode Active
               </span>
             </h3>
             <p className="text-[11px] text-slate-400">Ask questions or generate verified bash code</p>
           </div>
         </div>
-        <ShieldCheck className="w-5 h-5 text-emerald-400" />
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-emerald-400" />
+          {onCollapse && (
+            <button
+              onClick={onCollapse}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              title="Collapse AI Mentor"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
@@ -119,7 +131,7 @@ export const AIMentorPanel: React.FC<AIMentorPanelProps> = ({ onRunCommand, cont
         ))}
         {loading && (
           <div className="flex items-center gap-2 text-slate-400 text-xs italic">
-            <Sparkles className="w-4 h-4 animate-spin text-purple-400" /> AI Mentor is thinking...
+            <Loader2 className="w-4 h-4 animate-spin text-emerald-400" /> AI Mentor is thinking...
           </div>
         )}
       </div>
@@ -130,12 +142,12 @@ export const AIMentorPanel: React.FC<AIMentorPanelProps> = ({ onRunCommand, cont
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Ask AI: e.g. How to grant sudo permissions?"
-          className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+          className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
         />
         <button
           type="submit"
           disabled={loading || !prompt.trim()}
-          className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition"
+          className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition"
         >
           <Send className="w-3.5 h-3.5" />
         </button>

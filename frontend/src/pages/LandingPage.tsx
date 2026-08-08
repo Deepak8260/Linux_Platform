@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Terminal, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Terminal, Rocket, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { useTheme } from '../context/ThemeContext';
 
@@ -35,7 +35,7 @@ export const LandingPage: React.FC = () => {
           <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 border ${
             isDark ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-green-100/80 border-green-200 text-green-700 shadow-sm'
           }`}>
-            <Sparkles className="w-4 h-4 text-green-600" /> Next-Gen Linux & DevOps Assessment Platform
+            <Rocket className="w-4 h-4 text-green-600" /> Next-Gen Linux & DevOps Assessment Platform
           </div>
 
           <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 tracking-tight ${
@@ -97,46 +97,39 @@ export const LandingPage: React.FC = () => {
               <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
                 <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
               </div>
-              <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Hands-on Linux & DevOps Skills</span>
+              <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Job Ready Skills</span>
             </div>
           </div>
 
-        </div>
-      </section>
+          <div className="flex items-center justify-center gap-12 md:gap-20 pt-4">
+            <div className="animate-float">
+              <img
+                src="/images/Linux_logo.jpg"
+                alt="Linux Logo"
+                className="h-14 md:h-18 object-contain"
+                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+              />
+            </div>
 
-      <section className={`py-16 px-4 border-t transition-colors ${
-        isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50/50 border-slate-200/80'
-      }`}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              How It Works
-            </h2>
-            <p className="text-slate-500 mt-2 text-sm">Five simple steps from choosing a lab to earning your credentials.</p>
+            <div className="animate-bounce">
+              <img
+                src="/images/ubuntu.png"
+                alt="Ubuntu Logo"
+                className="h-14 md:h-18 object-contain"
+                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+              />
+            </div>
+
+            <div className="animate-pulse">
+              <img
+                src="/images/Amazon-Web-Services-AWS-Logo.png"
+                alt="AWS Logo"
+                className="h-10 md:h-14 object-contain"
+                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+              />
+            </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            {[
-              { step: '1', title: 'Choose a Lab', desc: 'Pick a scenario from beginner navigation to RHCSA-level challenges.' },
-              { step: '2', title: 'Launch Ubuntu Sandbox', desc: 'Spin up a real, disposable Ubuntu 24.04 sandbox in seconds.' },
-              { step: '3', title: 'Complete the Task', desc: 'Work directly in the terminal with AI DevOps Mentor guidance.' },
-              { step: '4', title: 'Automated Verification', desc: 'Your sandbox is evaluated automatically for correctness.' },
-              { step: '5', title: 'Earn Progress & Credentials', desc: 'Collect XP, badges, and certificates as you complete labs.' },
-            ].map((item, idx, arr) => (
-              <div key={item.step} className="relative flex flex-col items-center text-center">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-4 ${
-                  isDark ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-green-100 text-green-700 border border-green-200'
-                }`}>
-                  {item.step}
-                </div>
-                <h3 className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{item.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
-                {idx < arr.length - 1 && (
-                  <ArrowRight className={`hidden lg:block absolute top-6 -right-4 w-5 h-5 ${isDark ? 'text-slate-700' : 'text-slate-300'}`} />
-                )}
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -170,7 +163,7 @@ export const LandingPage: React.FC = () => {
               <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-lg mb-4">
                 02
               </div>
-              <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>AI DevOps Mentor</h3>
+              <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Gemini AI DevOps Mentor</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Translates plain English to Bash commands, debugs errors in real-time, and blocks dangerous system operations.
               </p>

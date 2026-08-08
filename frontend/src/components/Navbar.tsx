@@ -255,14 +255,6 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
                     </Link>
 
                     <Link
-                      to="/dashboard"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-green-50 hover:text-green-700 transition"
-                    >
-                      <Cpu className="w-4 h-4 text-green-600" /> Dashboard
-                    </Link>
-
-                    <Link
                       to="/badges"
                       onClick={() => setShowProfileMenu(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-green-50 hover:text-green-700 transition"

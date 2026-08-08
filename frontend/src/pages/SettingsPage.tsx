@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { Navbar } from '../components/Navbar';
 import { Settings, Lock, Sun, Moon, Bell, Key, Laptop, AlertTriangle, Trash2 } from 'lucide-react';
 
-export const SettingsPage: React.FC = () => {
+export const SettingsContent: React.FC = () => {
   const { updatePassword } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -56,13 +56,8 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors ${
-      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
-    }`}>
-      <Navbar />
+    <div className="space-y-8">
 
-      <main className="max-w-5xl mx-auto px-4 py-8 w-full flex-1 space-y-8">
-        
         <div className="space-y-2">
           <h1 className="text-3xl font-extrabold flex items-center gap-2">
             <Settings className="w-7 h-7 text-green-600" /> Platform Settings
@@ -240,8 +235,6 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-      </main>
-
       {/* Delete Account Confirmation Dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
@@ -274,6 +267,23 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+export const SettingsPage: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <div className={`min-h-screen flex flex-col font-sans transition-colors ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    }`}>
+      <Navbar />
+
+      <main className="max-w-5xl mx-auto px-4 py-8 w-full flex-1">
+        <SettingsContent />
+      </main>
     </div>
   );
 };

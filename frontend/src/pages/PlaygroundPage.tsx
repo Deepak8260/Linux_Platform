@@ -4,7 +4,7 @@ import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
 import { SpinConfirmationModal } from '../components/modals/SpinConfirmationModal';
 import { useAuth } from '../context/AuthContext';
-import { Terminal, RefreshCw, Play } from 'lucide-react';
+import { Terminal, RefreshCw, Play, MessageSquare, ChevronUp } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export const PlaygroundPage: React.FC = () => {
@@ -19,6 +19,7 @@ export const PlaygroundPage: React.FC = () => {
   const [isMock, setIsMock] = useState(false);
   const [showSpinModal, setShowSpinModal] = useState<boolean>(true);
   const [isLaunching, setIsLaunching] = useState<boolean>(false);
+  const [mentorCollapsed, setMentorCollapsed] = useState<boolean>(true);
 
   const initSession = async () => {
     setLoading(true);
@@ -84,7 +85,7 @@ export const PlaygroundPage: React.FC = () => {
       <Navbar remainingSeconds={sessionId ? remainingSeconds : null} onEndSession={handleEndSession} />
 
       <div className="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden max-w-[1700px] w-full mx-auto">
-        <div className="flex-[3] flex flex-col h-full overflow-hidden">
+        <div className={`flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out ${mentorCollapsed ? 'flex-1' : 'flex-[3]'}`}>
           <div className="flex items-center justify-between mb-2 px-1">
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-green-600" />
@@ -142,9 +143,23 @@ export const PlaygroundPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full md:flex-1 h-full overflow-hidden">
-          <AIMentorPanel onRunCommand={handleRunSuggestedCommand} />
-        </div>
+        {mentorCollapsed ? (
+          <button
+            onClick={() => setMentorCollapsed(false)}
+            className={`w-full md:w-14 h-12 md:h-full shrink-0 rounded-2xl border flex md:flex-col items-center justify-center gap-2 font-semibold text-xs transition-all duration-300 ease-in-out ${
+              isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm'
+            }`}
+            title="Expand AI DevOps Mentor"
+          >
+            <MessageSquare className="w-4 h-4 text-emerald-500" />
+            <span className="md:[writing-mode:vertical-rl] md:rotate-180">AI DevOps Mentor</span>
+            <ChevronUp className="w-3.5 h-3.5 md:rotate-90" />
+          </button>
+        ) : (
+          <div className="w-full md:flex-1 h-full overflow-hidden transition-all duration-300 ease-in-out">
+            <AIMentorPanel onRunCommand={handleRunSuggestedCommand} onCollapse={() => setMentorCollapsed(true)} />
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal prior to spinning container */}

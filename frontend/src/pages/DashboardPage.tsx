@@ -4,7 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Navbar } from '../components/Navbar';
 import { SpinConfirmationModal } from '../components/modals/SpinConfirmationModal';
-import { Terminal, BookOpen, Flame, Award, Cpu, ArrowRight, Sparkles } from 'lucide-react';
+import { DashboardSidebar, DashboardTab } from '../components/dashboard/DashboardSidebar';
+import { BadgesContent } from './BadgesPage';
+import { CertificatesContent } from './CertificatesPage';
+import { ProfileContent } from './ProfilePage';
+import { SettingsContent } from './SettingsPage';
+import { Terminal, BookOpen, Flame, Award, Cpu, ArrowRight, TrendingUp } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,10 +21,24 @@ export const DashboardPage: React.FC = () => {
   const [isLaunching, setIsLaunching] = useState(false);
   // TODO: wire this up to the real sandbox/session status API once available.
   const [hasActiveSandbox] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('linuxarena_dashboard_sidebar_collapsed') === 'true';
+  });
+  const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('linuxarena_dashboard_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   const completedLabs = user?.completed_labs || 8;
   const totalLabs = 20;
   const learningProgressPct = Math.round((completedLabs / totalLabs) * 100);
+  const xp = user?.xp || 1450;
+  const streak = user?.streak || 7;
 
   const handleConfirmSpin = () => {
     setIsLaunching(true);
@@ -42,8 +61,23 @@ export const DashboardPage: React.FC = () => {
     }`}>
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 w-full flex-1 space-y-8">
-        
+      <div className="max-w-7xl mx-auto px-4 py-8 w-full flex-1 flex gap-6 items-start">
+        <DashboardSidebar
+          isDark={isDark}
+          collapsed={sidebarCollapsed}
+          onToggle={toggleSidebar}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          stats={{ xp, streak, completedLabs, totalLabs }}
+        />
+
+        <main className="flex-1 min-w-0 space-y-8">
+        {activeTab === 'badges' && <BadgesContent />}
+        {activeTab === 'certificates' && <CertificatesContent />}
+        {activeTab === 'profile' && <ProfileContent />}
+        {activeTab === 'settings' && <SettingsContent />}
+        {activeTab === 'overview' && (
+        <>
         {/* Personalized Welcome Banner (compact) */}
         <div className={`border rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm relative overflow-hidden ${
           isDark ? 'bg-gradient-to-r from-slate-900 via-slate-900 to-slate-850 border-slate-800' : 'bg-gradient-to-r from-emerald-50 via-white to-green-50 border-slate-200'
@@ -94,7 +128,7 @@ export const DashboardPage: React.FC = () => {
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
           }`}>
             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              Total XP <Sparkles className="w-4 h-4 text-green-600" />
+              Total XP <TrendingUp className="w-4 h-4 text-green-600" />
             </div>
             <div className="text-2xl font-extrabold text-green-600">{user?.xp || 1450} <span className="text-xs font-normal text-slate-400">XP</span></div>
             <div className="text-[10px] text-green-600 font-semibold">+150 XP earned this week</div>
@@ -251,8 +285,11 @@ export const DashboardPage: React.FC = () => {
           </div>
 
         </div>
+        </>
+        )}
 
-      </main>
+        </main>
+      </div>
 
       {/* Spin Up Confirmation Modal */}
       <SpinConfirmationModal
