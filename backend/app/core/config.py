@@ -1,5 +1,15 @@
 import os
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Absolute path to backend/.env, regardless of the current working directory the
+# backend process was launched from. A bare "env_file=\".env\"" is resolved relative
+# to the process's CWD by pydantic-settings, NOT relative to this file's location -
+# so if uvicorn is started from the repo root (or anywhere other than backend/),
+# backend/.env silently fails to load and every setting falls back to its
+# os.getenv(..., default) value computed at import time (before .env is read).
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+_ENV_FILE = _BACKEND_DIR / ".env"
 
 
 class Settings(BaseSettings):
@@ -47,7 +57,7 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_ID: str = os.getenv("GITHUB_CLIENT_ID", "mock-github-client-id")
     GITHUB_CLIENT_SECRET: str = os.getenv("GITHUB_CLIENT_SECRET", "mock-github-client-secret")
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=str(_ENV_FILE), extra="ignore")
 
 
 settings = Settings()
