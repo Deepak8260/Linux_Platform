@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Terminal, BookOpen, Sun, Moon, LogIn, LogOut, Cpu, Bell, Search, User,
-  Settings, ChevronDown, X
+  Settings, ChevronDown, X, ShieldCheck
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -261,6 +261,16 @@ export const Navbar: React.FC<NavbarProps> = ({ remainingSeconds, onEndSession }
                     >
                       <Settings className="w-4 h-4 text-slate-500" /> Settings
                     </Link>
+
+                    {user.is_admin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-emerald-50 hover:text-emerald-700 transition"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-emerald-600" /> Admin Panel
+                      </Link>
+                    )}
 
                     <div className="border-t border-slate-200/80 my-1"></div>
 

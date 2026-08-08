@@ -1,5 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { ProtectedRoute } from '../components/ProtectedRoute';
+import { AdminRoute } from '../components/AdminRoute';
+import { AdminPage } from '../pages/AdminPage';
 import { LandingPage } from '../pages/LandingPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { PlaygroundPage } from '../pages/PlaygroundPage';
@@ -100,6 +102,14 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <BadgesPage />
       </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin',
+    element: (
+      <AdminRoute>
+        <AdminPage />
+      </AdminRoute>
     ),
   },
 ]);

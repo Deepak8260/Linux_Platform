@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy, Flame } from 'lucide-react';
+import { Trophy, Flame, Users } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { useTheme } from '../context/ThemeContext';
 
@@ -16,19 +16,17 @@ export const LeaderboardPage: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    // Real leaderboard data only - no placeholder/sample learners are shown
+    // here anymore. If the request fails or there's nobody ranked yet, this
+    // just shows an empty state instead of fabricated names.
     fetch('http://localhost:8000/api/v1/platform/leaderboard')
-      .then(res => res.json())
-      .then(data => setUsers(data))
-      .catch(() => {
-        setUsers([
-          { rank: 1, name: 'Sarah Jenkins', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', xp: 4850, streak: 24, badge: 'DevOps Legend' },
-          { rank: 2, name: 'David Kim', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', xp: 4120, streak: 19, badge: 'Linux Administration Specialist' },
-          { rank: 3, name: 'Elena Rostova', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100', xp: 3890, streak: 14, badge: 'Kernel Master' },
-          { rank: 4, name: 'Alex Student (You)', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100', xp: 1450, streak: 7, badge: 'Terminal Explorer' },
-        ]);
-      });
+      .then(res => (res.ok ? res.json() : []))
+      .then(data => setUsers(Array.isArray(data) ? data : []))
+      .catch(() => setUsers([]))
+      .finally(() => setLoaded(true));
   }, []);
 
   return (
@@ -48,6 +46,13 @@ export const LeaderboardPage: React.FC = () => {
         </div>
 
         <div className={`border rounded-2xl overflow-hidden shadow-sm ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+          {loaded && users.length === 0 && (
+            <div className="p-10 text-center space-y-2">
+              <Users className="w-8 h-8 mx-auto text-slate-300" />
+              <p className="text-sm font-bold">No ranked learners yet</p>
+              <p className="text-xs text-slate-500">Complete labs and earn XP to be the first to appear on the leaderboard.</p>
+            </div>
+          )}
           <div className="divide-y divide-slate-200/80">
             {users.map(u => (
               <div

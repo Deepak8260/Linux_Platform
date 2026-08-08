@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Briefcase, Users, Plus, Clock, Download, Mail } from 'lucide-react';
+import { Briefcase, Users, Plus, Clock, Download, Mail, ClipboardList } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { useTheme } from '../context/ThemeContext';
 
@@ -16,17 +16,16 @@ export const RecruiterPage: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    // No fabricated sample assessments anymore - this always reflects real
+    // data (currently empty until the recruiter feature has real records).
     fetch('http://localhost:8000/api/v1/platform/recruiter/assessments')
-      .then(res => res.json())
-      .then(data => setAssessments(data))
-      .catch(() => {
-        setAssessments([
-          { id: 'eval-01', title: 'Senior DevOps Engineer Linux Practical Test', topic: 'Linux Admin + K8s', duration_minutes: 45, candidate_count: 12, status: 'Active' },
-          { id: 'eval-02', title: 'Linux System Administrator Screening', topic: 'Users, Permissions, Storage', duration_minutes: 60, candidate_count: 8, status: 'Completed' }
-        ]);
-      });
+      .then(res => (res.ok ? res.json() : []))
+      .then(data => setAssessments(Array.isArray(data) ? data : []))
+      .catch(() => setAssessments([]))
+      .finally(() => setLoaded(true));
   }, []);
 
   return (
@@ -51,6 +50,14 @@ export const RecruiterPage: React.FC = () => {
             <Plus className="w-4 h-4" /> Create Practical Test
           </button>
         </div>
+
+        {loaded && assessments.length === 0 && (
+          <div className={`border rounded-2xl p-10 text-center space-y-2 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <ClipboardList className="w-8 h-8 mx-auto text-slate-300" />
+            <p className="text-sm font-bold">No assessments created yet</p>
+            <p className="text-xs text-slate-500">Click "Create Practical Test" to set up your first candidate evaluation.</p>
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-6">
           {assessments.map(ass => (

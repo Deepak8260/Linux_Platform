@@ -52,6 +52,7 @@ class UserProfile(BaseModel):
     level: str = "Linux Administrator"
     badges: List[str] = ["Container Master", "Terminal Explorer", "Scripting Pro"]
     completed_labs: int = 8
+    is_admin: bool = False
     created_at: Optional[str] = None
 
 

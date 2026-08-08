@@ -25,6 +25,7 @@ class User(Base):
     level = Column(String(50), default="Linux Administrator")
     badges = Column(JSON, default=list)
     completed_labs = Column(Integer, default=8)
+    is_admin = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 

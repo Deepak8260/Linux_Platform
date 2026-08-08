@@ -1,20 +1,35 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { Navbar } from '../components/Navbar';
 import { Award, Lock, CheckCircle2 } from 'lucide-react';
 
+// The full badge catalog is real course content (not fake user data) - every
+// learner can see which badges exist and what they require. What used to be
+// dummy is the "unlocked" state: it was hardcoded to true for everyone.
+// Now "unlocked" is derived from the signed-in user's real `badges` list
+// (stored on their account in the database), so it reflects what they've
+// actually earned.
+const BADGE_CATALOG = [
+  { name: 'Container Master', desc: 'Spin up 5 Ubuntu Sandbox sessions', icon: '🚀' },
+  { name: 'Terminal Explorer', desc: 'Execute 50 terminal commands in live bash sandbox', icon: '💻' },
+  { name: 'Scripting Pro', desc: 'Complete 5 guided Linux coreutils labs', icon: '📜' },
+  { name: 'Linux Administration Specialist', desc: 'Pass the Linux Admin User Setup simulation', icon: '🛡️' },
+  { name: 'Kernel Master', desc: 'Maintain a 14-day continuous daily practice streak', requirement: '14-Day Streak', icon: '🧠' },
+  { name: 'DevOps Orchestrator', desc: 'Deploy 5 Nginx & Docker web container labs', requirement: 'Complete 5 DevOps Labs', icon: '⚙️' },
+];
+
 export const BadgesContent: React.FC = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const isDark = theme === 'dark';
 
-  const allBadges = [
-    { name: 'Container Master', desc: 'Spin up 5 Ubuntu Sandbox sessions', unlocked: true, inProgress: false, icon: '🚀' },
-    { name: 'Terminal Explorer', desc: 'Execute 50 terminal commands in live bash sandbox', unlocked: true, inProgress: false, icon: '💻' },
-    { name: 'Scripting Pro', desc: 'Complete 5 guided Linux coreutils labs', unlocked: true, inProgress: false, icon: '📜' },
-    { name: 'Linux Administration Specialist', desc: 'Pass the Linux Admin User Setup simulation', unlocked: true, inProgress: false, icon: '🛡️' },
-    { name: 'Kernel Master', desc: 'Maintain a 14-day continuous daily practice streak', unlocked: false, inProgress: true, requirement: '14-Day Streak (Progress: 7/14)', icon: '🧠' },
-    { name: 'DevOps Orchestrator', desc: 'Deploy 5 Nginx & Docker web container labs', unlocked: false, inProgress: true, requirement: 'Complete 5 DevOps Labs (Progress: 1/5)', icon: '⚙️' },
-  ];
+  const earnedBadgeNames = new Set(user?.badges || []);
+  const allBadges = BADGE_CATALOG.map(b => ({
+    ...b,
+    unlocked: earnedBadgeNames.has(b.name),
+    inProgress: !earnedBadgeNames.has(b.name) && !!b.requirement,
+  }));
 
   // Derived counts from badge data (not hardcoded)
   const earnedCount = allBadges.filter(b => b.unlocked).length;

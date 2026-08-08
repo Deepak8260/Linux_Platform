@@ -16,6 +16,7 @@ export interface UserProfile {
   level: string;
   badges: string[];
   completed_labs: number;
+  is_admin?: boolean;
   created_at?: string;
 }
 

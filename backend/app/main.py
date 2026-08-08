@@ -3,12 +3,13 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.database.session import engine, Base
+from app.database.session import engine, Base, SessionLocal
 from app.api.auth import router as auth_router
 from app.api.sessions import router as sessions_router
 from app.api.labs import router as labs_router
 from app.api.ai import router as ai_router
 from app.api.platform import router as platform_router
+from app.api.admin.router import router as admin_router
 from app.websocket.terminal import router as ws_router
 from app.docker.manager import docker_manager
 
@@ -45,6 +46,7 @@ app.include_router(sessions_router, prefix=settings.API_V1_STR)
 app.include_router(labs_router, prefix=settings.API_V1_STR)
 app.include_router(ai_router, prefix=settings.API_V1_STR)
 app.include_router(platform_router, prefix=settings.API_V1_STR)
+app.include_router(admin_router, prefix=settings.API_V1_STR)
 app.include_router(ws_router)
 
 
@@ -67,6 +69,26 @@ async def startup_event():
         logger.info("Successfully created/verified MySQL database schemas.")
     except Exception as e:
         logger.warning(f"Could not auto-create database tables on startup: {e}")
+
+    # Make sure the platform owner's account (kd8260) always has admin access,
+    # even if it was created before the admin feature existed.
+    try:
+        from app.models.domain import User
+        db = SessionLocal()
+        try:
+            promoted = (
+                db.query(User)
+                .filter((User.email == "kd8260@gmail.com") | (User.username == "kd8260"))
+                .filter(User.is_admin.is_(False))
+                .update({User.is_admin: True}, synchronize_session=False)
+            )
+            db.commit()
+            if promoted:
+                logger.info(f"Promoted {promoted} existing kd8260 account(s) to admin.")
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning(f"Admin auto-promotion check notice: {e}")
 
     # Periodic background task to clean expired 30-min container sessions
     async def session_cleaner():

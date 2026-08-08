@@ -13,6 +13,19 @@ from app.security.jwt import hash_password, verify_password, create_access_token
 router = APIRouter(prefix="/auth", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
+# Emails/usernames that are always granted admin access, even on first
+# signup/login. "kd8260" is the platform owner's account (kd8260@gmail.com).
+ADMIN_IDENTIFIERS = {"kd8260", "kd8260@gmail.com"}
+
+
+def _should_be_admin(email: Optional[str], username: Optional[str] = None) -> bool:
+    local_part = (email or "").split("@")[0].lower()
+    return (
+        (email or "").lower() in ADMIN_IDENTIFIERS
+        or local_part in ADMIN_IDENTIFIERS
+        or (username or "").lower() in ADMIN_IDENTIFIERS
+    )
+
 
 def parse_badges(badges_raw) -> list:
     if isinstance(badges_raw, list):
@@ -43,8 +56,18 @@ def user_to_profile(user: User) -> UserProfile:
         level=user.level or "Linux Administrator",
         badges=parse_badges(user.badges),
         completed_labs=user.completed_labs if user.completed_labs is not None else 8,
+        is_admin=bool(getattr(user, "is_admin", False)) or _should_be_admin(user.email, user.username),
         created_at=user.created_at.strftime("%Y-%m-%d") if user.created_at else "2026-01-15"
     )
+
+
+def _sync_admin_flag(user: User, db: Session) -> None:
+    """Ensures kd8260's account always carries is_admin=True in the database,
+    self-healing older rows that predate the admin column/feature."""
+    if _should_be_admin(user.email, user.username) and not user.is_admin:
+        user.is_admin = True
+        db.commit()
+        db.refresh(user)
 
 
 @router.post("/signup", response_model=TokenResponse)
@@ -75,7 +98,8 @@ async def signup(user_data: UserSignup, db: Session = Depends(get_db)):
         streak=7,
         level="Linux Administrator",
         badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
-        completed_labs=8
+        completed_labs=8,
+        is_admin=_should_be_admin(user_data.email, None)
     )
     db.add(new_user)
     db.commit()
@@ -107,13 +131,15 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
             streak=7,
             level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
-            completed_labs=8
+            completed_labs=8,
+            is_admin=_should_be_admin(credentials.email, name)
         )
         db.add(user)
         db.commit()
         db.refresh(user)
 
     else:
+        _sync_admin_flag(user, db)
         # User exists: verify password
         is_valid = verify_password(credentials.password, user.hashed_password)
         
@@ -154,13 +180,15 @@ async def google_auth(req: OAuthAuthRequest, db: Session = Depends(get_db)):
             streak=7,
             level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
-            completed_labs=8
+            completed_labs=8,
+            is_admin=_should_be_admin(req.email, req.name)
         )
         db.add(user)
     else:
         user.auth_provider = "google"
         if req.avatar_url:
             user.avatar_url = req.avatar_url
+        _sync_admin_flag(user, db)
 
     db.commit()
     db.refresh(user)
@@ -189,13 +217,15 @@ async def github_auth(req: OAuthAuthRequest, db: Session = Depends(get_db)):
             streak=7,
             level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
-            completed_labs=8
+            completed_labs=8,
+            is_admin=_should_be_admin(req.email, req.name)
         )
         db.add(user)
     else:
         user.auth_provider = "github"
         if req.avatar_url:
             user.avatar_url = req.avatar_url
+        _sync_admin_flag(user, db)
 
     db.commit()
     db.refresh(user)
@@ -226,11 +256,16 @@ async def get_me(token: Optional[str] = Depends(oauth2_scheme), db: Session = De
                 streak=7,
                 level="Linux Administrator",
                 badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
-                completed_labs=8
+                completed_labs=8,
+                is_admin=True
             )
             db.add(user)
             db.commit()
             db.refresh(user)
+        else:
+            _sync_admin_flag(user, db)
+    else:
+        _sync_admin_flag(user, db)
 
     return user_to_profile(user)
 
@@ -262,11 +297,14 @@ async def update_profile(
             streak=7,
             level="Linux Administrator",
             badges=["Container Master", "Terminal Explorer", "Scripting Pro"],
-            completed_labs=8
+            completed_labs=8,
+            is_admin=True
         )
         db.add(user)
         db.commit()
         db.refresh(user)
+    else:
+        _sync_admin_flag(user, db)
 
     if profile_data.name:
         user.name = profile_data.name

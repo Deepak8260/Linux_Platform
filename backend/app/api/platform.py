@@ -1,6 +1,10 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database.session import get_db
+from app.models.domain import User
 
 router = APIRouter(prefix="/platform", tags=["Platform & Recruiter"])
 
@@ -23,25 +27,35 @@ class RecruiterAssessment(BaseModel):
     status: str
 
 
-LEADERBOARD_DATA = [
-    LeaderboardUser(rank=1, name="Sarah Jenkins", avatar="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100", xp=4850, streak=24, badge="DevOps Legend"),
-    LeaderboardUser(rank=2, name="David Kim", avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100", xp=4120, streak=19, badge="Linux Administration Specialist"),
-    LeaderboardUser(rank=3, name="Elena Rostova", avatar="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", xp=3890, streak=14, badge="Kernel Master"),
-    LeaderboardUser(rank=4, name="Alex Student (You)", avatar="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100", xp=1450, streak=7, badge="Terminal Explorer"),
-    LeaderboardUser(rank=5, name="Marcus Vance", avatar="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100", xp=1200, streak=4, badge="Bash Explorer"),
-]
-
-ASSESSMENTS_DATA = [
-    RecruiterAssessment(id="eval-01", title="Senior DevOps Engineer Linux Practical Test", topic="Linux Admin + K8s", duration_minutes=45, candidate_count=12, status="Active"),
-    RecruiterAssessment(id="eval-02", title="Linux System Administrator Screening", topic="Users, Permissions, Storage", duration_minutes=60, candidate_count=8, status="Completed"),
-]
-
-
 @router.get("/leaderboard", response_model=List[LeaderboardUser])
-async def get_leaderboard():
-    return LEADERBOARD_DATA
+async def get_leaderboard(db: Session = Depends(get_db)):
+    """Real leaderboard, built from actual users in the database - ranked by
+    XP. No more fake/sample entries here; if nobody has earned XP yet this
+    simply returns an empty list and the frontend shows an empty state."""
+    top_users = (
+        db.query(User)
+        .filter(User.xp.isnot(None))
+        .order_by(User.xp.desc())
+        .limit(50)
+        .all()
+    )
+    return [
+        LeaderboardUser(
+            rank=idx + 1,
+            name=u.name,
+            avatar=u.avatar_url or "",
+            xp=u.xp or 0,
+            streak=u.streak or 0,
+            badge=u.level or "Learner",
+        )
+        for idx, u in enumerate(top_users)
+    ]
 
 
 @router.get("/recruiter/assessments", response_model=List[RecruiterAssessment])
 async def get_assessments():
-    return ASSESSMENTS_DATA
+    """Recruiter assessments are not backed by a real table yet - there is
+    nothing genuine to show here, so this returns an empty list instead of
+    fabricated sample assessments. Admins can still preview what this feature
+    looks like via /api/v1/admin/demo-content."""
+    return []

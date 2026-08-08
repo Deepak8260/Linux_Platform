@@ -9,24 +9,13 @@ export const CertificatesContent: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const certificatesList = [
-    {
-      id: 'cert-linux-admin-2026',
-      title: 'LinuxArena Linux Administration Mastery',
-      issueDate: 'August 2026',
-      serialNumber: 'LA-CERT-2026-849201',
-      skills: ['Linux Coreutils', 'User Management', 'Permissions & Sudo', 'Systemd Services'],
-      disclaimer: 'Issued by LinuxArena. This certificate verifies completion of LinuxArena practical labs and is not an official third-party vendor certification.'
-    },
-    {
-      id: 'cert-docker-2026',
-      title: 'LinuxArena Docker & DevOps Fundamentals Specialist',
-      issueDate: 'July 2026',
-      serialNumber: 'LA-CERT-2026-392014',
-      skills: ['Docker Engine', 'Nginx Configuration', 'Process Troubleshooting'],
-      disclaimer: 'Issued by LinuxArena. This certificate verifies completion of LinuxArena practical labs and is not an official vendor certification.'
-    }
-  ];
+  // Certificates aren't backed by a real "issued certificates" table yet, so
+  // there is nothing genuine to show a regular learner. Only admins get a
+  // labeled sample preview (via the Admin Panel's "Sample / Demo Data" tab);
+  // everyone else sees an honest empty state below.
+  const certificatesList: {
+    id: string; title: string; issueDate: string; serialNumber: string; skills: string[]; disclaimer: string;
+  }[] = [];
 
   const handleDownloadPDF = (title: string) => {
     alert(`Downloading Official PDF Certificate for: ${title}`);
@@ -49,6 +38,19 @@ export const CertificatesContent: React.FC = () => {
         </h1>
         <p className="text-sm text-slate-500">Official completion certificates earned through hands-on practical lab mastery.</p>
       </div>
+
+      {certificatesList.length === 0 && (
+        <div className={`border rounded-2xl p-10 text-center space-y-2 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+          <Award className="w-8 h-8 mx-auto text-slate-300" />
+          <p className="text-sm font-bold">No certificates earned yet</p>
+          <p className="text-xs text-slate-500">Complete a lab track's full curriculum to unlock its completion certificate here.</p>
+          {user?.is_admin && (
+            <p className="text-[11px] text-emerald-600 font-semibold pt-2">
+              You're an admin — view a labeled sample certificate preview in the Admin Panel's "Sample / Demo Data" tab.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         {certificatesList.map(cert => (
