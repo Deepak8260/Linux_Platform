@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { X, Lock, Mail, User as UserIcon, Sparkles } from 'lucide-react';
+import { X, Lock, Mail, User as UserIcon, Sparkles, Phone } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
   const { isAuthModalOpen, closeAuthModal, loginManual, signupManual, loginOAuth } = useAuth();
@@ -11,6 +11,7 @@ export const AuthModal: React.FC = () => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export const AuthModal: React.FC = () => {
       if (mode === 'login') {
         await loginManual(email, password);
       } else {
-        await signupManual(name, email, password);
+        await signupManual(name, email, password, phone.trim() || undefined);
       }
     } catch (err: any) {
       setError(err.message || 'Authentication error');
@@ -150,6 +151,26 @@ export const AuthModal: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs border focus:outline-none focus:border-green-600 transition ${
+                    isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                  }`}
+                />
+              </div>
+            </div>
+          )}
+
+          {mode === 'signup' && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                Phone Number <span className="text-slate-400 font-normal normal-case">(optional)</span>
+              </label>
+              <div className="relative">
+                <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
                   className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs border focus:outline-none focus:border-green-600 transition ${
                     isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
                   }`}

@@ -23,7 +23,7 @@ interface AuthContextType {
   user: UserProfile | null;
   token: string | null;
   loginManual: (email: string, pass: string) => Promise<void>;
-  signupManual: (name: string, email: string, pass: string) => Promise<void>;
+  signupManual: (name: string, email: string, pass: string, phone?: string) => Promise<void>;
   loginOAuth: (provider: 'google' | 'github', name: string, email: string, avatarUrl?: string) => Promise<void>;
   updateProfile: (data: { name?: string; username?: string; phone?: string; avatar_url?: string; enrolled_course?: string; batch?: string }) => Promise<void>;
   updatePassword: (current_password: string, new_password: string) => Promise<void>;
@@ -98,11 +98,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthModalOpen(false);
   };
 
-  const signupManual = async (name: string, email: string, pass: string) => {
+  const signupManual = async (name: string, email: string, pass: string, phone?: string) => {
     const res = await fetch('http://localhost:8000/api/v1/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password: pass })
+      body: JSON.stringify({ name, email, password: pass, phone: phone || null })
     });
     if (!res.ok) {
       const err = await res.json();

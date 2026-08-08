@@ -11,6 +11,7 @@ class UserSignup(BaseModel):
     name: str
     email: str
     password: str
+    phone: Optional[str] = None
 
 
 class OAuthAuthRequest(BaseModel):
@@ -41,7 +42,7 @@ class UserProfile(BaseModel):
     name: str
     username: Optional[str] = "deepak_dev"
     email: str
-    phone: Optional[str] = "+91 9876543210"
+    phone: Optional[str] = None
     avatar_url: Optional[str] = None
     auth_provider: str = "manual"
     enrolled_course: str = "Linux Administration Track"
