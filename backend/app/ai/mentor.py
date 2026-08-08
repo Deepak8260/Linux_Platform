@@ -41,14 +41,22 @@ class GeminiAIMentor:
 
     def _init_client(self):
         if not self.api_key:
-            logger.info("No GEMINI_API_KEY found in config. AI Mentor will run in rule-assisted mode.")
+            # NOTE: settings.GEMINI_API_KEY is read once, at process startup, when this
+            # module-level singleton (ai_mentor) is constructed. If GEMINI_API_KEY is
+            # added/changed in .env *after* the backend process is already running,
+            # this will still be empty until the backend is restarted.
+            logger.warning(
+                "No GEMINI_API_KEY found in config at startup. AI Mentor will run in "
+                "rule-assisted (canned) mode for the lifetime of this process. If you "
+                "just added GEMINI_API_KEY to .env, RESTART the backend process."
+            )
             return
         try:
             from google import genai
             self.client = genai.Client(api_key=self.api_key)
             logger.info("Gemini Client initialized successfully.")
         except Exception as e:
-            logger.warning(f"Failed to initialize Gemini Client: {e}")
+            logger.error(f"Failed to initialize Gemini Client: {e}", exc_info=True)
             self.client = None
 
     async def generate_response(self, prompt: str, context: str = "") -> Dict[str, Any]:
@@ -73,7 +81,17 @@ class GeminiAIMentor:
                     "source": "gemini"
                 }
             except Exception as e:
-                logger.error(f"Gemini API error: {e}")
+                # Log the full exception (with traceback) so real failures - invalid
+                # API key, quota exceeded, network/proxy blocked, model not available,
+                # SDK/response-shape mismatch, etc. - are visible in the backend
+                # console instead of silently returning the generic canned response.
+                logger.error(f"Gemini API call failed, falling back to rule-based mentor: {e}", exc_info=True)
+        else:
+            logger.warning(
+                "Gemini client is not initialized (GEMINI_API_KEY missing at startup or "
+                "client init failed) - returning rule-based canned response instead of a "
+                "real Gemini answer."
+            )
 
         # Fallback intelligent rule-based mentor
         return self._rule_based_response(prompt)

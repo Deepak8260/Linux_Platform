@@ -12,6 +12,16 @@ from app.api.platform import router as platform_router
 from app.websocket.terminal import router as ws_router
 from app.docker.manager import docker_manager
 
+# Ensure app-level loggers (app.ai.mentor, app.docker.manager, etc.) actually emit
+# INFO/WARNING/ERROR output to the console. Without this, the root logger stays at
+# its default WARNING level with no handler attached, so logger.info(...) calls are
+# silently dropped and diagnosing issues (e.g. why the AI Mentor fell back to its
+# canned response) is much harder.
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
