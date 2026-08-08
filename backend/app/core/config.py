@@ -16,6 +16,14 @@ class Settings(BaseSettings):
     CONTAINER_MEM_LIMIT: str = "256m"
     CONTAINER_NCPU: float = 0.5
 
+    # Optional override for the Docker daemon endpoint used by `docker.from_env()`.
+    # Leave blank to use docker-py's platform default (unix:///var/run/docker.sock on
+    # Linux/macOS, npipe:////./pipe/docker_engine on native Windows). Set this if your
+    # Docker Desktop is configured differently, e.g.:
+    #   Windows named pipe (default Docker Desktop):  npipe:////./pipe/docker_engine
+    #   Docker Desktop "Expose daemon on tcp://localhost:2375 without TLS":  tcp://localhost:2375
+    DOCKER_HOST: str = os.getenv("DOCKER_HOST", "")
+
     # AI Mentor Settings
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 

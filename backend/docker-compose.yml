@@ -11,4 +11,9 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./logs:/app/logs
+      # Required for DockerSessionManager (app/docker/manager.py) to reach the host's
+      # Docker daemon and spin up real sandbox containers. Without this mount the
+      # containerized backend has no Docker socket at all and silently falls back to
+      # the SimulatedBashShell mock terminal.
+      - /var/run/docker.sock:/var/run/docker.sock
 

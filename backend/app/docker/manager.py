@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import time
 from typing import Dict, Optional, Any
 from app.core.config import settings
@@ -47,12 +48,28 @@ class DockerSessionManager:
             logger.warning("Docker SDK python package not found. Using Mock mode.")
             return
 
+        # Allow an explicit override (e.g. npipe:////./pipe/docker_engine on native
+        # Windows, or tcp://localhost:2375 if Docker Desktop exposes the daemon over
+        # TCP). Without this, docker-py falls back to its own platform default, which
+        # may not match a non-default Docker Desktop configuration.
+        if settings.DOCKER_HOST:
+            os.environ.setdefault("DOCKER_HOST", settings.DOCKER_HOST)
+
         try:
             self.docker_client = docker.from_env()
             self.docker_client.ping()
-            logger.info("Successfully connected to Docker engine.")
+            logger.info(
+                f"Successfully connected to Docker engine (DOCKER_HOST={os.environ.get('DOCKER_HOST', '<default>')})."
+            )
         except Exception as e:
-            logger.warning(f"Could not connect to Docker daemon: {e}. Falling back to sandbox simulation mode.")
+            # Elevated to ERROR with exc_info so the real connection failure (missing
+            # Docker Desktop, wrong socket/pipe path, permissions, etc.) is visible in
+            # logs instead of being lost at WARNING level.
+            logger.error(
+                f"Could not connect to Docker daemon (DOCKER_HOST={os.environ.get('DOCKER_HOST', '<default>')}): "
+                f"{e}. Falling back to sandbox simulation mode.",
+                exc_info=True,
+            )
             self.docker_client = None
 
     async def create_session(self, session_id: str, user_id: str) -> ContainerSession:
