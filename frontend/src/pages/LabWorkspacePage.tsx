@@ -5,7 +5,7 @@ import { AIMentorPanel } from '../components/AI/AIMentorPanel';
 import { Navbar } from '../components/Navbar';
 import { SpinConfirmationModal } from '../components/modals/SpinConfirmationModal';
 import { useAuth } from '../context/AuthContext';
-import { CheckCircle2, ArrowLeft, Lightbulb, Terminal, Play, RefreshCw } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Lightbulb, Terminal, Play } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useTheme } from '../context/ThemeContext';
 
